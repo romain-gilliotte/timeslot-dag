@@ -1,5 +1,3 @@
-import 'babel-polyfill';
-
 
 /**
  * Which periodicity contains the others.
@@ -27,7 +25,7 @@ const upperSlots = {
  * A class representing a time slot used in monitoring.
  * This can be a given day, epidemiological week, month, quarter, ...
  */
-export default class TimeSlot {
+class TimeSlot {
 
 	static canConvertPeriodicities(from_, to) {
 		return upperSlots[from_].indexOf(to) !== -1;
@@ -454,7 +452,7 @@ export default class TimeSlot {
 	}
 }
 
-export function* timeSlotRange(start, end) {
+function* timeSlotRange(start, end) {
 	if (start.periodicity !== end.periodicity)
 		throw new Error('Periodicity must be the same');
 
@@ -464,3 +462,6 @@ export function* timeSlotRange(start, end) {
 	}
 	yield start;
 }
+
+module.exports = TimeSlot;
+module.exports.timeSlotRange = timeSlotRange;
