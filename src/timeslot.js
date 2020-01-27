@@ -1,35 +1,9 @@
 
 /**
- * Which periodicity contains the others.
- *
- * @private
- * @type {Object}
- */
-const upperSlots = {
-	'day': ['month_week_sat', 'month_week_sun', 'month_week_mon', 'week_sat', 'week_sun', 'week_mon', 'month', 'quarter', 'semester', 'year'],
-	'month_week_sat': ['week_sat', 'month', 'quarter', 'semester', 'year'],
-	'month_week_sun': ['week_sun', 'month', 'quarter', 'semester', 'year'],
-	'month_week_mon': ['week_mon', 'month', 'quarter', 'semester', 'year'],
-	'week_sat': ['month', 'quarter', 'semester', 'year'],
-	'week_sun': ['month', 'quarter', 'semester', 'year'],
-	'week_mon': ['month', 'quarter', 'semester', 'year'],
-	'month': ['quarter', 'semester', 'year'],
-	'quarter': ['semester', 'year'],
-	'semester': ['year'],
-	'year': []
-};
-
-
-
-/**
  * A class representing a time slot used in monitoring.
  * This can be a given day, epidemiological week, month, quarter, ...
  */
 class TimeSlot {
-
-	static canConvertPeriodicities(from_, to) {
-		return upperSlots[from_].indexOf(to) !== -1;
-	}
 
 	/**
 	 * @param  {Date} utcDate Date which we want to build the TimeSlot around
@@ -44,6 +18,8 @@ class TimeSlot {
 	 * ts2.value // '2010-Q4'
 	 */
 	static fromDate(utcDate, periodicity) {
+		if (typeof utcDate === 'string')
+			utcDate = new Date(utcDate);
 
 		if (periodicity === 'day')
 			return new TimeSlot(utcDate.toISOString().substring(0, 10));
@@ -415,7 +391,7 @@ class TimeSlot {
 	 */
 	toUpperSlot(newPeriodicity) {
 		// Raise when we make invalid conversions
-		if (upperSlots[this.periodicity].indexOf(newPeriodicity) === -1)
+		if (TimeSlot.upperSlots[this.periodicity].indexOf(newPeriodicity) === -1)
 			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
 
 		// For days, months, quarters, semesters, we can assume that getting the slot from any date works
@@ -446,22 +422,26 @@ class TimeSlot {
 		date.setUTCDate(date.getUTCDate() + 1);
 		return TimeSlot.fromDate(date, this.periodicity);
 	}
+};
 
-	toString() {
-		return this._value;
-	}
-}
-
-function* timeSlotRange(start, end) {
-	if (start.periodicity !== end.periodicity)
-		throw new Error('Periodicity must be the same');
-
-	while (start.value < end.value) {
-		yield start;
-		start = start.next();
-	}
-	yield start;
-}
+/**
+ * Static member documenting which periodicity contains the others.
+ *
+ * @private
+ * @type {Object}
+ */
+TimeSlot.upperSlots = {
+	'day': ['month_week_sat', 'month_week_sun', 'month_week_mon', 'week_sat', 'week_sun', 'week_mon', 'month', 'quarter', 'semester', 'year'],
+	'month_week_sat': ['week_sat', 'month', 'quarter', 'semester', 'year'],
+	'month_week_sun': ['week_sun', 'month', 'quarter', 'semester', 'year'],
+	'month_week_mon': ['week_mon', 'month', 'quarter', 'semester', 'year'],
+	'week_sat': ['month', 'quarter', 'semester', 'year'],
+	'week_sun': ['month', 'quarter', 'semester', 'year'],
+	'week_mon': ['month', 'quarter', 'semester', 'year'],
+	'month': ['quarter', 'semester', 'year'],
+	'quarter': ['semester', 'year'],
+	'semester': ['year'],
+	'year': []
+};
 
 module.exports = TimeSlot;
-module.exports.timeSlotRange = timeSlotRange;
