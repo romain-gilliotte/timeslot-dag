@@ -89,6 +89,30 @@ describe("TimeSlot", () => {
 
 	});
 
+
+	describe(".previous()", () => {
+
+		it("should work with month_week_sun formats", () => {
+			let ts = new TimeSlot('2017-07-W6-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-07-W5-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-07-W4-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-07-W3-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-07-W2-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-07-W1-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-06-W5-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-06-W4-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-06-W3-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-06-W2-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-06-W1-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-05-W5-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-05-W4-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-05-W3-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-05-W2-sun');
+			ts = ts.previous(); assert.equal(ts.value, '2017-05-W1-sun');
+		});
+
+	});
+
 	describe(".next()", () => {
 
 		it("should work with month_week_sun formats", () => {

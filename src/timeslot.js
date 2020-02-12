@@ -406,6 +406,12 @@ class TimeSlot {
 		return TimeSlot.fromDate(upperSlotDate, newPeriodicity);
 	}
 
+	previous() {
+		var date = this.firstDate;
+		date.setUTCDate(date.getUTCDate() - 1);
+		return TimeSlot.fromDate(date, this.periodicity);
+	}
+
 	/**
 	 * Creates a TimeSlot instance of the same periodicity than the current once, but which follows it
 	 *
