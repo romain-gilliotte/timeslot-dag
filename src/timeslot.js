@@ -390,6 +390,10 @@ class TimeSlot {
 	 * t2.value; // 2010-Q3
 	 */
 	toUpperSlot(newPeriodicity) {
+		if (newPeriodicity == this.periodicity) {
+			return this;
+		}
+
 		// Raise when we make invalid conversions
 		if (TimeSlot.upperSlots[this.periodicity].indexOf(newPeriodicity) === -1)
 			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
