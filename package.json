@@ -3,6 +3,7 @@
   "version": "0.3.1",
   "description": "Helper library to work with periods of time in javascript",
   "main": "src/timeslot.js",
+  "types": "src/timeslot.d.ts",
   "author": "Romain Gilliotte",
   "license": "ISC",
   "repository": {

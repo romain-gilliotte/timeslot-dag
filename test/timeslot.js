@@ -1,6 +1,5 @@
 const assert = require('assert');
 const TimeSlot = require('../src/timeslot');
-const timeSlotRange = TimeSlot.timeSlotRange;
 
 describe("TimeSlot", () => {
 
