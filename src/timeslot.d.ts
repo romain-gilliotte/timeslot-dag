@@ -1,5 +1,5 @@
 
-enum TimeSlotPeriodicity {
+declare enum TimeSlotPeriodicity {
     Day = 'day',
     MonthWeekSat = 'month_week_sat',
     MonthWeekSun = 'month_week_sun',
