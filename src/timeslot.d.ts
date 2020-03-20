@@ -27,6 +27,8 @@ declare class TimeSlot {
     toUpperSlot(newPeriodicity: TimeSlotPeriodicity): TimeSlot;
     previous(): TimeSlot;
     next(): TimeSlot;
+    humanizeValue(language?: string): string;
+    humanizePeriodicity(language?: string): string;
 }
 
 export = TimeSlot;

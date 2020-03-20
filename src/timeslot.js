@@ -432,6 +432,46 @@ class TimeSlot {
 		date.setUTCDate(date.getUTCDate() + 1);
 		return TimeSlot.fromDate(date, this.periodicity);
 	}
+
+	/**
+	 * Humanize the TimeSlot periodicity
+	 *
+	 * @param {'en'|'fr'|'es'} language
+	 * @return string Humanized label
+	 */
+	humanizePeriodicity(language = 'en') {
+		// Protect against remote code execution if run server-side.
+		if (!/^[a-z]{2}$/.test(language))
+			throw new Error('Language does not match expected format');
+
+		try {
+			const locale = require('./locale/' + language);
+			return locale.humanizePeriodicity(this.periodicity);
+		}
+		catch (e) {
+			throw new Error('Requested locale is not defined.');
+		}
+	}
+
+	/**
+	 * Humanize the TimeSlot value
+	 *
+	 * @param {'en'|'fr'|'es'} language
+	 * @return string Humanized label
+	 */
+	humanizeValue(language = 'en') {
+		// Protect against remote code execution if run server-side.
+		if (!/^[a-z]{2}$/.test(language))
+			throw new Error('Language does not match expected format');
+
+		try {
+			const locale = require('./locale/' + language);
+			return locale.humanizeValue(this.periodicity, this.value);
+		}
+		catch (e) {
+			throw new Error('Requested locale is not defined.');
+		}
+	}
 };
 
 /**

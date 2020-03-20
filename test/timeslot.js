@@ -146,4 +146,53 @@ describe("TimeSlot", () => {
 
 	});
 
+	describe(".humanizeValue()", () => {
+
+		it('should raise on invalid locale', () => {
+			let ts = new TimeSlot('2017-05-W1-sun');
+
+			assert.throws(() => ts.humanizeValue('../../infected-pkg/test/something'));
+		})
+
+		it('should raise on missing locale', () => {
+			let ts = new TimeSlot('2017-05-W1-sun');
+
+			assert.throws(() => ts.humanizeValue('pt'));
+		});
+
+		it('should work with provided locales', () => {
+			let ts = new TimeSlot('2017-05-W1-sun');
+
+			assert.equal(ts.humanizeValue('fr'), 'Sem. 1 Mai 2017');
+			assert.equal(ts.humanizeValue('es'), 'Sem. 1 Mayo 2017');
+			assert.equal(ts.humanizeValue('en'), '2017-05-W1');
+		});
+
+	});
+
+	describe(".humanizePeriodicity()", () => {
+
+		it('should raise on invalid locale', () => {
+			let ts = new TimeSlot('2017-05');
+
+			assert.throws(() => ts.humanizePeriodicity('../../infected-pkg/test/something'));
+		})
+
+		it('should raise on missing locale', () => {
+			let ts = new TimeSlot('2017-05');
+
+			assert.throws(() => ts.humanizePeriodicity('pt'));
+		});
+
+		it('should work with provided locales', () => {
+			let ts = new TimeSlot('2017-05');
+
+			assert.equal(ts.humanizePeriodicity('fr'), 'Mois');
+			assert.equal(ts.humanizePeriodicity('es'), 'Mes');
+			assert.equal(ts.humanizePeriodicity('en'), 'Month');
+		});
+
+	});
+
+
 });

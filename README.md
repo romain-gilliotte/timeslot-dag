@@ -145,6 +145,23 @@ They are formatted in the following way:
 - month: `[yyyy]-[mm]`
 - year: `[yyyy]`
 
+
+### Humanization
+
+```javascript
+const slot = new TimeSlot('2010-03-01')
+slot.humanizeValue('en') // == 'March 01, 2010'
+slot.humanizeValue('fr') // == '01 Mars 2010'
+
+slot.humanizePeriodicity('en') // == 'Day'
+slot.humanizePeriodicity('fr') // == 'Jour'
+```
+
+English, French and Spanish are supported.
+
+To avoid bundling all locales if using [webpack](https://webpack.js.org/), use either [IgnorePlugin or ContextReplacementPlugin](https://github.com/jmblog/how-to-optimize-momentjs-with-webpack).
+
+
 ### Slot aggregation
 
 The `slot.toUpperSlot(periodicity)` method allows knowing in which *parent slot* the current slot is included.
@@ -171,7 +188,9 @@ slot2.toUpperSlot('week_mon').toUpperSlot('year')  // === TimeSlot(2020)
 
 # If you consider using this project
 
-Did you consider using any of the other alternatives? The most well-known are:
+Did you consider using any of the other alternatives? They are likely to be better maintained!
+
+The most well-known are:
 
 - [Going native](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) - JavaScript Date objects represent a single moment in time in a platform-independent format.
 - [Luxon](https://moment.github.io/luxon/) - A powerful, modern, and friendly wrapper for Javascript dates and times.
@@ -183,5 +202,4 @@ Did you consider using any of the other alternatives? The most well-known are:
 
 # Coming next
 
-- [ ] Localization
-- [ ] Support Nepali calendar
+- [ ] Support other calendars used in administrations/healthcare around the world
