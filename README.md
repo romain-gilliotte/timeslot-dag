@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="898" height="196" src="https://raw.githubusercontent.com/romain-gilliotte/timeslot.js/master/assets/logo.png">
+TimeslotDAG
 </p>
 
 [![npm](https://img.shields.io/npm/dt/timeslot-dag.svg)](https://www.npmjs.com/package/timeslot-dag)
