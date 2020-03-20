@@ -24,7 +24,12 @@ declare class TimeSlot {
     get firstDate(): Date;
     get lastDate(): Date;
 
-    toUpperSlot(newPeriodicity: TimeSlotPeriodicity): TimeSlot;
+    get parentPeriodicities(): TimeSlotPeriodicity[];
+    get childPeriodicities(): TimeSlotPeriodicity[];
+
+    toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot;
+    toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[];
+
     previous(): TimeSlot;
     next(): TimeSlot;
     humanizeValue(language?: string): string;

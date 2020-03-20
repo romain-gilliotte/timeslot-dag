@@ -377,6 +377,16 @@ class TimeSlot {
 			return new Date(this.value + '-12-31T00:00:00Z');
 	}
 
+	get parentPeriodicities() {
+		return TimeSlot.upperSlots[this.periodicity];
+	}
+
+	get childPeriodicities() {
+		return Object
+			.keys(TimeSlot.upperSlots)
+			.filter(p => TimeSlot.upperSlots[p].indexOf(this.periodicity) !== -1);
+	}
+
 	/**
 	 * Creates a TimeSlot instance with a longer periodicity that contains this one.
 	 *
@@ -385,17 +395,16 @@ class TimeSlot {
 	 *
 	 * @example
 	 * let t  = new TimeSlot('2010-07'),
-	 *     t2 = t.toUpperSlot('quarter');
+	 *     t2 = t.toParentPeriodicity('quarter');
 	 *
 	 * t2.value; // 2010-Q3
 	 */
-	toUpperSlot(newPeriodicity) {
-		if (newPeriodicity == this.periodicity) {
+	toParentPeriodicity(newPeriodicity) {
+		if (newPeriodicity == this.periodicity)
 			return this;
-		}
 
 		// Raise when we make invalid conversions
-		if (TimeSlot.upperSlots[this.periodicity].indexOf(newPeriodicity) === -1)
+		if (this.parentPeriodicities.indexOf(newPeriodicity) === -1)
 			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
 
 		// For days, months, quarters, semesters, we can assume that getting the slot from any date works
@@ -408,6 +417,26 @@ class TimeSlot {
 			upperSlotDate = new Date(upperSlotDate.getTime() + 3 * 24 * 60 * 60 * 1000);
 
 		return TimeSlot.fromDate(upperSlotDate, newPeriodicity);
+	}
+
+	toChildPeriodicity(newPeriodicity) {
+		if (newPeriodicity === this.periodicity)
+			return [this];
+
+		// Raise when we make invalid conversions
+		if (this.childPeriodicities.indexOf(newPeriodicity) === -1)
+			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
+
+		const end = TimeSlot.fromDate(this.lastDate, newPeriodicity);
+		let current = TimeSlot.fromDate(this.firstDate, newPeriodicity);
+
+		const result = [current];
+		while (current.value !== end.value) {
+			current = current.next();
+			result.push(current);
+		}
+
+		return result;
 	}
 
 	previous() {

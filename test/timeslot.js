@@ -88,7 +88,6 @@ describe("TimeSlot", () => {
 
 	});
 
-
 	describe(".previous()", () => {
 
 		it("should work with month_week_sun formats", () => {
@@ -136,14 +135,56 @@ describe("TimeSlot", () => {
 
 	});
 
-	describe(".toUpperSlot()", () => {
+	describe(".parentPeriodicities", () => {
 
 		it('should work', () => {
 			let ts = new TimeSlot('2017-05-W1-sun');
-			assert.deepEqual(ts.toUpperSlot('year'), new TimeSlot('2017'));
-			assert.deepEqual(ts.toUpperSlot('month'), new TimeSlot('2017-05'));
+			assert.deepEqual(ts.parentPeriodicities, ['week_sun', 'month', 'quarter', 'semester', 'year']);
 		});
 
+	});
+
+	describe(".childPeriodicities", () => {
+
+		it('should work with weeks', () => {
+			let ts = new TimeSlot('2017-05-W1-sun');
+			assert.deepEqual(ts.childPeriodicities, ['day']);
+		});
+
+		it('should work with month', () => {
+			let ts = new TimeSlot('2017-05');
+			assert.deepEqual(ts.childPeriodicities, ['day', 'month_week_sat', 'month_week_sun', 'month_week_mon', 'week_sat', 'week_sun', 'week_mon']);
+		});
+
+	});
+
+	describe(".toParentPeriodicity()", () => {
+
+		it('should work', () => {
+			let ts = new TimeSlot('2017-05-W1-sun');
+			assert.deepEqual(ts.toParentPeriodicity('year'), new TimeSlot('2017'));
+			assert.deepEqual(ts.toParentPeriodicity('month'), new TimeSlot('2017-05'));
+		});
+
+	});
+
+	describe(".toChildPeriodicity()", () => {
+
+		it('should work', () => {
+			let ts = new TimeSlot('2018-W18-sun');
+			assert.deepEqual(
+				ts.toChildPeriodicity('day').map(t => t.value),
+				[
+					new TimeSlot('2018-04-29'),
+					new TimeSlot('2018-04-30'),
+					new TimeSlot('2018-05-01'),
+					new TimeSlot('2018-05-02'),
+					new TimeSlot('2018-05-03'),
+					new TimeSlot('2018-05-04'),
+					new TimeSlot('2018-05-05')
+				].map(t => t.value)
+			);
+		});
 	});
 
 	describe(".humanizeValue()", () => {

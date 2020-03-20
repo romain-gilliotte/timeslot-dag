@@ -46,7 +46,7 @@ slot.lastDate                // == Date('2010-01-31')
 
 slot.previous()              // == TimeSlot('2009-12')
 slot.next()                  // == TimeSlot('2010-02')
-slot.toUpperSlot('quarter')  // == TimeSlot('2010-Q1')
+slot.toParentPeriodicity('quarter')  // == TimeSlot('2010-Q1')
 ```
 
 ### Creation
@@ -91,14 +91,14 @@ const date = new Date('2020-03-23T00:00:00Z')
 const slot = TimeSlot.fromDate(date, 'month_week_mon')
 
 // Weeks are numbered in the year
-slot.value             // === '2020-W13-mon'
-slot.next().value      // === '2020-W14-mon'
+slot.value             // '2020-W13-mon'
+slot.next().value      // '2020-W14-mon'
 
 // Slot duration is always 7 days.
-slot.firstDate         // === Date(2020-03-23)
-slot.lastDate          // === Date(2020-03-29)
-slot.next().firstDate  // === Date(2020-03-30)
-slot.next().lastDate   // === Date(2020-03-05)
+slot.firstDate         // Date(2020-03-23)
+slot.lastDate          // Date(2020-03-29)
+slot.next().firstDate  // Date(2020-03-30)
+slot.next().lastDate   // Date(2020-03-05)
 ```
 
 The `month_week_sat`, `month_week_sun`, `month_week_mon` represent weeks which are splitted at month boundaries, repectively starting on saturday, sunday or monday.
@@ -111,19 +111,19 @@ const date = new Date('2020-03-23T00:00:00Z')
 const slot = TimeSlot.fromDate(date, 'month_week_mon')
 
 // Slot duration is 7 days
-slot.value                    // === '2020-03-W5-mon'
-slot.firstDate                // === Date(2020-03-23)
-slot.lastDate                 // === Date(2020-03-29)
+slot.value                    // '2020-03-W5-mon'
+slot.firstDate                // Date(2020-03-23)
+slot.lastDate                 // Date(2020-03-29)
 
 // Next slot duration is 2 days (until end of the month) 
-slot.next().value             // === '2020-03-W6-mon'
-slot.next().firstDate         // === Date(2020-03-30)
-slot.next().lastDate          // === Date(2020-03-31)
+slot.next().value             // '2020-03-W6-mon'
+slot.next().firstDate         // Date(2020-03-30)
+slot.next().lastDate          // Date(2020-03-31)
 
 // Next slot duration is 5 days (so that next slot is aligned with monday)
-slot.next().next().value      // === '2020-04-W1-mon'
-slot.next().next().firstDate  // === Date(2020-04-01)
-slot.next().next().lastDate   // === Date(2020-03-05)
+slot.next().next().value      // '2020-04-W1-mon'
+slot.next().next().firstDate  // Date(2020-04-01)
+slot.next().next().lastDate   // Date(2020-03-05)
 
 // Next slot will be 7 days again
 ```
@@ -161,10 +161,9 @@ English, French and Spanish are supported.
 
 To avoid bundling all locales if using [webpack](https://webpack.js.org/), use either [IgnorePlugin or ContextReplacementPlugin](https://github.com/jmblog/how-to-optimize-momentjs-with-webpack).
 
-
 ### Slot aggregation
 
-The `slot.toUpperSlot(periodicity)` method allows knowing in which *parent slot* the current slot is included.
+The `slot.toParentPeriodicity(newPeriodicity)` method allows knowing in which *parent slot* the current slot is included.
 
 Aggregating between `year`, `semester`, `quarter`, `month`, `day` and splitted weeks (`month_week_*`) is trivial and behaves like expected in the Gregorian calendar.
 
@@ -173,17 +172,35 @@ To aggregate TimeSlots with periodicity `week_*` (normal 7 days weeks) into mont
 ```javascript
 // Tuesday
 const date = new Date('2019-12-31T00:00:00Z')
-
-// Both the day and week are 2019
 const slot = TimeSlot.fromDate(date, 'day')
-slot.toUpperSlot('year')                          // === TimeSlot('2019')
-slot.toUpperSlot('week_sat').toUpperSlot('year')  // === TimeSlot('2019')
 
-// With a different intermediate periodicity, the day is in 2019,
-// but the containing week is 2020.
-const slot2 = TimeSlot.fromDate(date, 'day')
-slot2.toUpperSlot('year')                          // === TimeSlot(2019)
-slot2.toUpperSlot('week_mon').toUpperSlot('year')  // === TimeSlot(2020)
+// List of periodicities this TimeSlot can be grouped into
+slot.parentPeriodicities  // ['month_week_sat', ..., 'semester', 'year']
+
+// Both the day and containing week starting on saturday are 2019,
+// however the containing week starting on monday is 2020
+slot.toParentPeriodicity('year')                                  // TimeSlot('2019')
+slot.toParentPeriodicity('week_sat').toParentPeriodicity('year')  // TimeSlot('2019')
+slot.toParentPeriodicity('week_mon').toParentPeriodicity('year')  // TimeSlot('2020')
+```
+
+### Slot disaggregation
+
+The `slot.toChildPeriodicity(newPeriodicity)` method allows listing the *children slots* which make up the current slot.
+
+The same rules than with slot aggregation are used.
+
+```javascript
+// Tuesday
+const date = new Date('2019-12-31T00:00:00Z')
+const slot = TimeSlot.fromDate(date, 'week_mon')
+
+// List of shorter periodicities which can compose this TimeSlot
+slot.childPeriodicities // ['day', 'month_week_mon']
+
+// Disagregate into those
+slot.toChildPeriodicity('day')             // [TimeSlot('2019-12-30'), ..., TimeSlot('2020-01-05')]
+slot.toChildPeriodicity('month_week_mon')  // [TimeSlot('2019-12-W6-mon'), TimeSlot('2020-01-W1-mon')]
 ```
 
 # If you consider using this project
