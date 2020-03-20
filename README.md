@@ -19,12 +19,11 @@ The main goals were:
 - Have an easier API than prevalent date libraries *for the task at hand* (business intelligence / OLAP).
 - Immutable, easy to localize, easy to serialize objects.
 - Lightweight enough to be called thousand of times when aggregating report data.
-- Support less periodicities:
+- Meet specific needs
     - Proper epidemiological weeks numbering.
     - Splitted weeks.
     - Weeks starting on Saturday (Middle east).
     - (soon) Other calendars
-
 
 # Installation
 
