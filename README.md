@@ -2,13 +2,16 @@
   <img width="898" height="196" src="https://raw.githubusercontent.com/romain-gilliotte/timeslot.js/master/assets/logo.png">
 </p>
 
-Timeslot DAG is a helper library to work with calendar periods in a graph pattern. It has no support for periods under a day, nor deals with timezones in any way.
+[![npm](https://img.shields.io/npm/dt/timeslot-dag.svg)](https://www.npmjs.com/package/timeslot-dag)
+[![NpmLicense](https://img.shields.io/npm/l/timeslot-dag.svg)](https://www.npmjs.com/package/timeslot-dag)
+
+TimeslotDAG is a helper library to work with calendar periods in a graph pattern. It has no support for periods under a day, nor deals with timezones in any way.
 
 It was written as a companion library for the [`olap-in-memory`](https://github.com/romain-gilliotte/olap-in-memory) library, which itself is a companion library for [`monitool`](https://github.com/medecins-du-monde/monitool), a full-featured monitoring platform targeted at humanitarian organizations.
 
 # Installation
 
-Timeslot DAG runs in both NodeJS and the browser, and has no production dependencies. [Typescript](https://www.typescriptlang.org/) typings are provided for auto-completion and type-checking.
+TimeslotDAG runs in both NodeJS and the browser, and has no production dependencies. [Typescript](https://www.typescriptlang.org/) typings are provided for auto-completion and type-checking.
 
 With no minification an no compression, it's footprint is around 16KiB. With gzip compression it is around 3kiB.
 
@@ -31,7 +34,7 @@ slot.toUpperSlot('quarter')  // == TimeSlot('2010-Q1')
 
 # Objectives
 
-Timeslot DAG does not aim in any way to replace full-featured date libraries.
+TimeslotDAG does not aim in any way to replace full-featured date libraries.
 
 The main goals were:
 
