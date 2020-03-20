@@ -1,7 +1,9 @@
-<p align="center">
+<p align="center" style="font-size: 32px">
 TimeslotDAG
 </p>
 
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/timeslot-dag)
+![npm](https://img.shields.io/npm/v/timeslot-dag)
 [![npm](https://img.shields.io/npm/dt/timeslot-dag.svg)](https://www.npmjs.com/package/timeslot-dag)
 [![NpmLicense](https://img.shields.io/npm/l/timeslot-dag.svg)](https://www.npmjs.com/package/timeslot-dag)
 
@@ -23,16 +25,15 @@ The main goals were:
     - Proper epidemiological weeks numbering.
     - Splitted weeks.
     - Weeks starting on Saturday (Middle east).
-    - (soon) Other calendars
 
 # Installation
 
-TimeslotDAG runs in both NodeJS and the browser, and has no production dependencies. [Typescript](https://www.typescriptlang.org/) typings are provided for auto-completion and type-checking.
+TimeslotDAG runs in both NodeJS and the browser, and has no production dependencies. 
 
-With no minification an no compression, it's footprint is around 16KiB. With gzip compression it is around 3kiB.
+[Typescript](https://www.typescriptlang.org/) and [Flow](https://flow.org/) typings are provided for auto-completion and type-checking, and should work without out of the box.
 
 ```console
-sh$ npm install timeslot-dag
+npm install timeslot-dag
 ```
 
 # Usage
@@ -63,6 +64,7 @@ const slot2 = TimeSlot.fromDate(new Date('2010-05-25T03:00:00Z'), 'year')
 // Both slots that were created in this sections are equal.
 slot1 == slot2
 ```
+
 ### Supported periodicities
 
 ```
@@ -109,19 +111,19 @@ const date = new Date('2020-03-23T00:00:00Z')
 const slot = TimeSlot.fromDate(date, 'month_week_mon')
 
 // Slot duration is 7 days
-slot.value             // === '2020-03-W5-mon'
-slot.firstDate         // === Date(2020-03-23)
-slot.lastDate          // === Date(2020-03-29)
+slot.value                    // === '2020-03-W5-mon'
+slot.firstDate                // === Date(2020-03-23)
+slot.lastDate                 // === Date(2020-03-29)
 
 // Next slot duration is 2 days (until end of the month) 
-slot.next().value      // === '2020-03-W6-mon'
-slot.next().firstDate  // === Date(2020-03-30)
-slot.next().lastDate   // === Date(2020-03-31)
+slot.next().value             // === '2020-03-W6-mon'
+slot.next().firstDate         // === Date(2020-03-30)
+slot.next().lastDate          // === Date(2020-03-31)
 
 // Next slot duration is 5 days (so that next slot is aligned with monday)
-slot.next().value      // === '2020-04-W1-mon'
-slot.next().firstDate  // === Date(2020-04-01)
-slot.next().lastDate   // === Date(2020-03-05)
+slot.next().next().value      // === '2020-04-W1-mon'
+slot.next().next().firstDate  // === Date(2020-04-01)
+slot.next().next().lastDate   // === Date(2020-03-05)
 
 // Next slot will be 7 days again
 ```
@@ -133,15 +135,15 @@ Slots identifiers are constructed to be alphabetically sortable inside each peri
 Those characteristics make them well-behaved with OLAP tools (PowerBI, Tableau, ...).
 
 They are formatted in the following way:
-- year: `[yyyy]`
-- month: `[yyyy]-[mm]`
+- day: `[yyyy]-[mm]-[dd]`
 - week_sat: `[yyyy]-W[ww]-sat`
 - week_sun: `[yyyy]-W[ww]-sun`
 - week_mon: `[yyyy]-W[ww]-mon`
 - month_week_sat: `[yyyy]-[mm]-W[w]-sat`
 - month_week_sun: `[yyyy]-[mm]-W[w]-sun`
 - month_week_mon: `[yyyy]-[mm]-W[w]-mon`
-- day: `[yyyy]-[mm]-[dd]`
+- month: `[yyyy]-[mm]`
+- year: `[yyyy]`
 
 ### Slot aggregation
 
@@ -181,6 +183,5 @@ Did you consider using any of the other alternatives? The most well-known are:
 
 # Coming next
 
-- [ ] Flow typing
 - [ ] Localization
 - [ ] Support Nepali calendar

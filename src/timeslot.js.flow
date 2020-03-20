@@ -1,0 +1,29 @@
+// @flow
+
+declare type TimeSlotPeriodicity = 'day'
+    | 'month_week_sat'
+    | 'month_week_sun'
+    | 'month_week_mon'
+    | 'week_sat'
+    | 'week_sun'
+    | 'week_mon'
+    | 'month'
+    | 'quarter'
+    | 'semester'
+    | 'year';
+
+declare export class TimeSlot {
+
+    static fromDate(utcDate: string | Date, periodicity: TimeSlotPeriodicity): TimeSlot;
+
+    constructor(value: string) : TimeSlot;
+
+    get value(): string;
+    get periodicity(): TimeSlotPeriodicity;
+    get firstDate(): Date;
+    get lastDate(): Date;
+
+    toUpperSlot(newPeriodicity: TimeSlotPeriodicity): TimeSlot;
+    previous(): TimeSlot;
+    next(): TimeSlot;
+}
