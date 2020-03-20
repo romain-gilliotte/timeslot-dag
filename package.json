@@ -1,6 +1,6 @@
 {
   "name": "timeslot-dag",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Helper library to work with periods of time in javascript",
   "main": "src/timeslot.js",
   "types": "src/timeslot.d.ts",
