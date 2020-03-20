@@ -9,6 +9,23 @@ TimeslotDAG is a helper library to work with calendar periods in a graph pattern
 
 It was written as a companion library for the [`olap-in-memory`](https://github.com/romain-gilliotte/olap-in-memory) library, which itself is a companion library for [`monitool`](https://github.com/medecins-du-monde/monitool), a full-featured monitoring platform targeted at humanitarian organizations.
 
+
+# Objectives
+
+TimeslotDAG does not aim in any way to replace full-featured date libraries.
+
+The main goals were:
+
+- Have an easier API than prevalent date libraries *for the task at hand* (business intelligence / OLAP).
+- Immutable, easy to localize, easy to serialize objects.
+- Lightweight enough to be called thousand of times when aggregating report data.
+- Support less periodicities:
+    - Proper epidemiological weeks numbering.
+    - Splitted weeks.
+    - Weeks starting on Saturday (Middle east).
+    - (soon) Other calendars
+
+
 # Installation
 
 TimeslotDAG runs in both NodeJS and the browser, and has no production dependencies. [Typescript](https://www.typescriptlang.org/) typings are provided for auto-completion and type-checking.
@@ -32,33 +49,7 @@ slot.next()                  // == TimeSlot('2010-02')
 slot.toUpperSlot('quarter')  // == TimeSlot('2010-Q1')
 ```
 
-# Objectives
-
-TimeslotDAG does not aim in any way to replace full-featured date libraries.
-
-The main goals were:
-
-- Have an easier API than prevalent date libraries *for the task at hand* (business intelligence / OLAP).
-- Immutable, easy to localize, easy to serialize objects.
-- Lightweight enough to be called thousand of times when aggregating report data.
-- Support less periodicities:
-    - Proper epidemiological weeks numbering.
-    - Splitted weeks.
-    - Weeks starting on Saturday (Middle east).
-    - (soon) Other calendars
-
-
-If you are looking for one of those, here are the most popular (in no particular order):
-
-- [Going native](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) - JavaScript Date objects represent a single moment in time in a platform-independent format.
-- [Luxon](https://moment.github.io/luxon/) - A powerful, modern, and friendly wrapper for Javascript dates and times.
-- [date-fns](https://date-fns.org/) - Modern JavaScript date utility library
-- [Moment.js](https://momentjs.com/) - Parse, validate, manipulate, and display dates and times in JavaScript.
-- [js-joda](https://js-joda.github.io/js-joda/) - Immutable date and time library for javascript
-- [day.js](https://github.com/iamkun/dayjs) - Fast 2kB alternative to Moment.js with the same modern API
-
-
-## Creation
+### Creation
 
 TimeSlots can be built in two ways.
 
@@ -73,7 +64,7 @@ const slot2 = TimeSlot.fromDate(new Date('2010-05-25T03:00:00Z'), 'year')
 // Both slots that were created in this sections are equal.
 slot1 == slot2
 ```
-## Supported periodicities
+### Supported periodicities
 
 ```
                                                       +  month_week_sat  <--+
@@ -136,7 +127,7 @@ slot.next().lastDate   // === Date(2020-03-05)
 // Next slot will be 7 days again
 ```
 
-## Slot identifiers
+### Slot identifiers
 
 Slots identifiers are constructed to be alphabetically sortable inside each periodicity, and represent a unique period across all periodicities.
 
@@ -153,7 +144,7 @@ They are formatted in the following way:
 - month_week_mon: `[yyyy]-[mm]-W[w]-mon`
 - day: `[yyyy]-[mm]-[dd]`
 
-## Slot aggregation
+### Slot aggregation
 
 The `slot.toUpperSlot(periodicity)` method allows knowing in which *parent slot* the current slot is included.
 
@@ -176,6 +167,18 @@ const slot2 = TimeSlot.fromDate(date, 'day')
 slot2.toUpperSlot('year')                          // === TimeSlot(2019)
 slot2.toUpperSlot('week_mon').toUpperSlot('year')  // === TimeSlot(2020)
 ```
+
+# If you consider using this project
+
+Did you consider using any of the other alternatives? The most well-known are:
+
+- [Going native](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date) - JavaScript Date objects represent a single moment in time in a platform-independent format.
+- [Luxon](https://moment.github.io/luxon/) - A powerful, modern, and friendly wrapper for Javascript dates and times.
+- [date-fns](https://date-fns.org/) - Modern JavaScript date utility library
+- [Moment.js](https://momentjs.com/) - Parse, validate, manipulate, and display dates and times in JavaScript.
+- [js-joda](https://js-joda.github.io/js-joda/) - Immutable date and time library for javascript
+- [day.js](https://github.com/iamkun/dayjs) - Fast 2kB alternative to Moment.js with the same modern API
+
 
 # Coming next
 
