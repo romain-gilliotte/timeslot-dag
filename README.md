@@ -149,11 +149,11 @@ They are formatted in the following way:
 
 ```javascript
 const slot = new TimeSlot('2010-03-01')
-slot.humanizeValue('en') // == 'March 01, 2010'
-slot.humanizeValue('fr') // == '01 Mars 2010'
+slot.humanizeValue('en')       // 'March 01, 2010'
+slot.humanizePeriodicity('en') // 'Day'
 
-slot.humanizePeriodicity('en') // == 'Day'
-slot.humanizePeriodicity('fr') // == 'Jour'
+slot.humanizeValue('fr')       // '01 Mars 2010'
+slot.humanizePeriodicity('fr') // 'Jour'
 ```
 
 English, French and Spanish are supported.
