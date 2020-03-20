@@ -1,5 +1,5 @@
-<p align="center" style="font-size: 32px">
-TimeslotDAG
+<p align="center">
+    <font size="7">TimeslotDAG</font>
 </p>
 
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/timeslot-dag)
