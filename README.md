@@ -177,4 +177,5 @@ slot2.toUpperSlot('week_mon').toUpperSlot('year')  // === TimeSlot(2020)
 # Coming next
 
 - [ ] Flow typing
+- [ ] Localization
 - [ ] Support Nepali calendar
