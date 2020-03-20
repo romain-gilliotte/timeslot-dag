@@ -40,13 +40,12 @@ npm install timeslot-dag
 
 ```javascript
 const slot = new TimeSlot('2010-01')
-slot.periodicity             // == 'month'
-slot.firstDate               // == Date('2010-01-01')
-slot.lastDate                // == Date('2010-01-31')
-
-slot.previous()              // == TimeSlot('2009-12')
-slot.next()                  // == TimeSlot('2010-02')
-slot.toParentPeriodicity('quarter')  // == TimeSlot('2010-Q1')
+slot.periodicity                     // 'month'
+slot.firstDate                       // Date('2010-01-01')
+slot.lastDate                        // Date('2010-01-31')
+slot.previous()                      // TimeSlot('2009-12')
+slot.next()                          // TimeSlot('2010-02')
+...
 ```
 
 ### Creation
