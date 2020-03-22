@@ -202,7 +202,7 @@ slot.toChildPeriodicity('day')             // [TimeSlot('2019-12-30'), ..., Time
 slot.toChildPeriodicity('month_week_mon')  // [TimeSlot('2019-12-W6-mon'), TimeSlot('2020-01-W1-mon')]
 ```
 
-# If you consider using this project
+# Alternatives
 
 Did you consider using any of the other alternatives? They are likely to be better maintained!
 

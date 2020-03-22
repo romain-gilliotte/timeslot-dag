@@ -19,7 +19,7 @@ const SEMESTERS = [
 ];
 
 const QUARTERS = [
-    "Primer trim.", "Segundo trim.", "Tercero trim.", "Quarto trim."
+    "Primer trim.", "Segundo trim.", "Tercero trim.", "Cuarto trim."
 ];
 
 const PERIODICITIES = {
@@ -46,10 +46,10 @@ module.exports = {
                 return year;
 
             case 'semester':
-                return SEMESTERS[value.substring(6) * 1] + ' ' + year;
+                return SEMESTERS[value.substring(6) - 1] + ' ' + year;
 
             case 'quarter':
-                return QUARTERS[value.substring(6) * 1] + ' ' + year;
+                return QUARTERS[value.substring(6) - 1] + ' ' + year;
 
             case 'month':
                 return MONTHS[value.substring(5, 7) - 1] + ' ' + year;

@@ -201,12 +201,20 @@ describe("TimeSlot", () => {
 			assert.throws(() => ts.humanizeValue('pt'));
 		});
 
-		it('should work with provided locales', () => {
+		it('should work with month_week_*', () => {
 			let ts = new TimeSlot('2017-05-W1-sun');
 
 			assert.equal(ts.humanizeValue('fr'), 'Sem. 1 Mai 2017');
 			assert.equal(ts.humanizeValue('es'), 'Sem. 1 Mayo 2017');
 			assert.equal(ts.humanizeValue('en'), '2017-05-W1');
+		});
+
+		it('should work with quarter', () => {
+			let ts = new TimeSlot('2017-Q4');
+
+			assert.equal(ts.humanizeValue('fr'), '4ème trim. 2017');
+			assert.equal(ts.humanizeValue('es'), 'Cuarto trim. 2017');
+			assert.equal(ts.humanizeValue('en'), '2017-Q4');
 		});
 
 	});
