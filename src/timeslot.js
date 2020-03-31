@@ -80,6 +80,9 @@ class TimeSlot {
 		else if (periodicity === 'year')
 			return new TimeSlot(utcDate.getUTCFullYear().toString());
 
+		else if (periodicity === 'all')
+			return new TimeSlot('all');
+
 		else
 			throw new Error("Invalid periodicity");
 	}
@@ -206,7 +209,10 @@ class TimeSlot {
 	 */
 	get periodicity() {
 		if (!this._periodicity) {
-			if (this.value.match(/^\d{4}$/))
+			if (this.value === 'all')
+				this._periodicity = 'all';
+
+			else if (this.value.match(/^\d{4}$/))
 				this._periodicity = 'year';
 
 			else if (this.value.match(/^\d{4}\-S\d$/))
@@ -304,6 +310,9 @@ class TimeSlot {
 		}
 		else if (this.periodicity === 'year')
 			return new Date(this.value + '-01-01T00:00:00Z');
+
+		else if (this.periodicity === 'all')
+			return new Date(-8640000000000000);
 	}
 
 	/**
@@ -375,6 +384,10 @@ class TimeSlot {
 
 		else if (this.periodicity === 'year')
 			return new Date(this.value + '-12-31T00:00:00Z');
+
+
+		else if (this.periodicity === 'all')
+			return new Date(8640000000000000);
 	}
 
 	get parentPeriodicities() {
@@ -420,10 +433,13 @@ class TimeSlot {
 	}
 
 	toChildPeriodicity(newPeriodicity) {
-		if (newPeriodicity === this.periodicity)
+		if (this.periodicity === 'all')
+			throw new Error('Would yield an infinite amount of children');
+
+		if (this.periodicity == newPeriodicity)
 			return [this];
 
-		// Raise when we make invalid conversions
+		// Invalid conversions
 		if (this.childPeriodicities.indexOf(newPeriodicity) === -1)
 			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
 
@@ -440,6 +456,10 @@ class TimeSlot {
 	}
 
 	previous() {
+		if (this.periodicity === 'all') {
+			throw new Error('There is no previous slot');
+		}
+
 		var date = this.firstDate;
 		date.setUTCDate(date.getUTCDate() - 1);
 		return TimeSlot.fromDate(date, this.periodicity);
@@ -457,6 +477,10 @@ class TimeSlot {
 	 * ts.next().value // 2011-W01-sat
 	 */
 	next() {
+		if (this.periodicity === 'all') {
+			throw new Error('There is no next slot');
+		}
+
 		var date = this.lastDate;
 		date.setUTCDate(date.getUTCDate() + 1);
 		return TimeSlot.fromDate(date, this.periodicity);
@@ -510,17 +534,18 @@ class TimeSlot {
  * @type {Object}
  */
 TimeSlot.upperSlots = {
-	'day': ['month_week_sat', 'month_week_sun', 'month_week_mon', 'week_sat', 'week_sun', 'week_mon', 'month', 'quarter', 'semester', 'year'],
-	'month_week_sat': ['week_sat', 'month', 'quarter', 'semester', 'year'],
-	'month_week_sun': ['week_sun', 'month', 'quarter', 'semester', 'year'],
-	'month_week_mon': ['week_mon', 'month', 'quarter', 'semester', 'year'],
-	'week_sat': ['month', 'quarter', 'semester', 'year'],
-	'week_sun': ['month', 'quarter', 'semester', 'year'],
-	'week_mon': ['month', 'quarter', 'semester', 'year'],
-	'month': ['quarter', 'semester', 'year'],
-	'quarter': ['semester', 'year'],
-	'semester': ['year'],
-	'year': []
+	'day': ['month_week_sat', 'month_week_sun', 'month_week_mon', 'week_sat', 'week_sun', 'week_mon', 'month', 'quarter', 'semester', 'year', 'all'],
+	'month_week_sat': ['week_sat', 'month', 'quarter', 'semester', 'year', 'all'],
+	'month_week_sun': ['week_sun', 'month', 'quarter', 'semester', 'year', 'all'],
+	'month_week_mon': ['week_mon', 'month', 'quarter', 'semester', 'year', 'all'],
+	'week_sat': ['month', 'quarter', 'semester', 'year', 'all'],
+	'week_sun': ['month', 'quarter', 'semester', 'year', 'all'],
+	'week_mon': ['month', 'quarter', 'semester', 'year', 'all'],
+	'month': ['quarter', 'semester', 'year', 'all'],
+	'quarter': ['semester', 'year', 'all'],
+	'semester': ['year', 'all'],
+	'year': ['all'],
+	'all': []
 };
 
 module.exports = TimeSlot;
