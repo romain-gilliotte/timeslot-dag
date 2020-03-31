@@ -10,7 +10,8 @@ declare type TimeSlotPeriodicity = 'day'
     | 'month'
     | 'quarter'
     | 'semester'
-    | 'year';
+    | 'year'
+    | 'all';
 
 declare export class TimeSlot {
 

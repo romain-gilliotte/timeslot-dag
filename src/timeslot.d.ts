@@ -11,6 +11,7 @@ declare enum TimeSlotPeriodicity {
     Quarter = 'quarter',
     Semester = 'semester',
     Year = 'year',
+    All = 'all'
 }
 
 declare class TimeSlot {
