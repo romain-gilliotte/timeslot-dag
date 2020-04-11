@@ -34,6 +34,7 @@ const PERIODICITIES = {
     quarter: "Trimestre",
     semester: "Semestre",
     year: "Année",
+    all: 'Tout'
 }
 
 
@@ -42,6 +43,9 @@ module.exports = {
         const year = value.substring(0, 4);
 
         switch (periodicity) {
+            case 'all':
+                return 'Tout';
+
             case 'year':
                 return year;
 

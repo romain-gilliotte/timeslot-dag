@@ -139,7 +139,7 @@ describe("TimeSlot", () => {
 
 		it('should work', () => {
 			let ts = new TimeSlot('2017-05-W1-sun');
-			assert.deepEqual(ts.parentPeriodicities, ['week_sun', 'month', 'quarter', 'semester', 'year']);
+			assert.deepEqual(ts.parentPeriodicities, ['week_sun', 'month', 'quarter', 'semester', 'year', 'all']);
 		});
 
 	});
@@ -217,6 +217,14 @@ describe("TimeSlot", () => {
 			assert.equal(ts.humanizeValue('en'), '2017-Q4');
 		});
 
+		it('should work with all', () => {
+			let ts = new TimeSlot('all');
+
+			assert.equal(ts.humanizeValue('fr'), 'Tout');
+			assert.equal(ts.humanizeValue('es'), 'Todo');
+			assert.equal(ts.humanizeValue('en'), 'All');
+		});
+
 	});
 
 	describe(".humanizePeriodicity()", () => {
@@ -239,6 +247,15 @@ describe("TimeSlot", () => {
 			assert.equal(ts.humanizePeriodicity('fr'), 'Mois');
 			assert.equal(ts.humanizePeriodicity('es'), 'Mes');
 			assert.equal(ts.humanizePeriodicity('en'), 'Month');
+		});
+
+
+		it('should work with all', () => {
+			let ts = new TimeSlot('all');
+
+			assert.equal(ts.humanizePeriodicity('fr'), 'Tout');
+			assert.equal(ts.humanizePeriodicity('es'), 'Todo');
+			assert.equal(ts.humanizePeriodicity('en'), 'All');
 		});
 
 	});
