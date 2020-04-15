@@ -1,3 +1,19 @@
+const HashLru = require('hashlru');
+
+const nextCache = HashLru(1e4);
+const toParentCache = {
+	'month_week_sat': HashLru(1e3),
+	'month_week_sun': HashLru(1e3),
+	'month_week_mon': HashLru(1e3),
+	'week_sat': HashLru(1e3),
+	'week_sun': HashLru(1e3),
+	'week_mon': HashLru(1e3),
+	'month': HashLru(1e3),
+	'quarter': HashLru(1e3),
+	'semester': HashLru(1e3),
+	'year': HashLru(1e3),
+	'all': { get: () => new TimeSlot('all') }
+};
 
 /**
  * A class representing a time slot used in monitoring.
@@ -187,6 +203,21 @@ class TimeSlot {
 	 */
 	constructor(value) {
 		this._value = value;
+
+		// Poor man's parser.
+		// The previous versions based on regexps was on the top of the profiler on monitool.
+		const len = value.length;
+		if (len === 3) this._periodicity = 'all';
+		else if (len === 4) this._periodicity = 'year';
+		else if (len === 7) {
+			const charAt6 = value[5];
+			if (charAt6 === 'Q') this._periodicity = 'quarter';
+			else if (charAt6 === 'S') this._periodicity = 'semester';
+			else this._periodicity = 'month';
+		}
+		else if (len == 10) this._periodicity = 'day';
+		else if (len == 12) this._periodicity = 'week_' + value.substr(9);
+		else if (len == 14) this._periodicity = 'month_week_' + value.substr(11);
 	}
 
 	/**
@@ -208,44 +239,6 @@ class TimeSlot {
 	 * @type {string}
 	 */
 	get periodicity() {
-		if (!this._periodicity) {
-			if (this.value === 'all')
-				this._periodicity = 'all';
-
-			else if (this.value.match(/^\d{4}$/))
-				this._periodicity = 'year';
-
-			else if (this.value.match(/^\d{4}\-S\d$/))
-				this._periodicity = 'semester';
-
-			else if (this.value.match(/^\d{4}\-Q\d$/))
-				this._periodicity = 'quarter';
-
-			else if (this.value.match(/^\d{4}\-\d{2}$/))
-				this._periodicity = 'month';
-
-			else if (this.value.match(/^\d{4}\-W\d{2}-sat$/))
-				this._periodicity = 'week_sat';
-
-			else if (this.value.match(/^\d{4}\-W\d{2}-sun$/))
-				this._periodicity = 'week_sun';
-
-			else if (this.value.match(/^\d{4}\-W\d{2}-mon$/))
-				this._periodicity = 'week_mon';
-
-			else if (this.value.match(/^\d{4}\-\d{2}\-W\d{1}-sat$/))
-				this._periodicity = 'month_week_sat';
-
-			else if (this.value.match(/^\d{4}\-\d{2}\-W\d{1}-sun$/))
-				this._periodicity = 'month_week_sun';
-
-			else if (this.value.match(/^\d{4}\-\d{2}\-W\d{1}-mon$/))
-				this._periodicity = 'month_week_mon';
-
-			else if (this.value.match(/^\d{4}\-\d{2}\-\d{2}$/))
-				this._periodicity = 'day';
-		}
-
 		return this._periodicity;
 	}
 
@@ -258,60 +251,60 @@ class TimeSlot {
 	 * t.firstDate.toUTCString(); // 2012-01-01T00:00:00Z
 	 */
 	get firstDate() {
-		if (this.periodicity === 'day')
-			return new Date(this.value + 'T00:00:00Z');
+		if (this._periodicity === 'day')
+			return new Date(this._value + 'T00:00:00Z');
 
-		else if (this.periodicity === 'month_week_sat' || this.periodicity === 'month_week_sun' || this.periodicity === 'month_week_mon') {
-			var weekNumber = 1 * this.value.substr(9, 1);
+		else if (this._periodicity === 'month_week_sat' || this._periodicity === 'month_week_sun' || this._periodicity === 'month_week_mon') {
+			var weekNumber = 1 * this._value.substr(9, 1);
 
-			var firstDayOfMonth = new Date(this.value.substring(0, 7) + '-01T00:00:00Z').getUTCDay();
+			var firstDayOfMonth = new Date(this._value.substring(0, 7) + '-01T00:00:00Z').getUTCDay();
 			if (weekNumber === 1)
-				return new Date(Date.UTC(this.value.substring(0, 4), this.value.substring(5, 7) - 1, 1));
+				return new Date(Date.UTC(this._value.substring(0, 4), this._value.substring(5, 7) - 1, 1));
 
 			else {
 				var firstWeekLength;
-				if (this.periodicity === 'month_week_sat')
+				if (this._periodicity === 'month_week_sat')
 					firstWeekLength = 7 - ((firstDayOfMonth + 1) % 7);
-				else if (this.periodicity === 'month_week_sun')
+				else if (this._periodicity === 'month_week_sun')
 					firstWeekLength = 7 - firstDayOfMonth; // 1 if month start on saturday, 2 if friday, 7 if sunday
 				else
 					firstWeekLength = 7 - ((firstDayOfMonth - 1 + 7) % 7);
 
 				return new Date(Date.UTC(
-					this.value.substring(0, 4),
-					this.value.substring(5, 7) - 1,
+					this._value.substring(0, 4),
+					this._value.substring(5, 7) - 1,
 					1 + firstWeekLength + (weekNumber - 2) * 7
 				));
 			}
 		}
 
-		else if (this.periodicity === 'week_sat' || this.periodicity === 'week_sun' || this.periodicity === 'week_mon')
+		else if (this._periodicity === 'week_sat' || this._periodicity === 'week_sun' || this._periodicity === 'week_mon')
 			return new Date(
-				TimeSlot._getEpidemiologicWeekEpoch(this.value.substring(0, 4), this.periodicity).getTime() +
-				(this.value.substring(6, 8) - 1) * 7 * 24 * 60 * 60 * 1000 // week numbering starts with 1
+				TimeSlot._getEpidemiologicWeekEpoch(this._value.substring(0, 4), this._periodicity).getTime() +
+				(this._value.substring(6, 8) - 1) * 7 * 24 * 60 * 60 * 1000 // week numbering starts with 1
 			);
 
-		else if (this.periodicity === 'month')
-			return new Date(this.value + '-01T00:00:00Z');
+		else if (this._periodicity === 'month')
+			return new Date(this._value + '-01T00:00:00Z');
 
-		else if (this.periodicity === 'quarter') {
-			var month = (this.value.substring(6, 7) - 1) * 3 + 1;
+		else if (this._periodicity === 'quarter') {
+			var month = (this._value.substring(6, 7) - 1) * 3 + 1;
 			if (month < 10)
 				month = '0' + month;
 
-			return new Date(this.value.substring(0, 5) + month + '-01T00:00:00Z');
+			return new Date(this._value.substring(0, 5) + month + '-01T00:00:00Z');
 		}
-		else if (this.periodicity === 'semester') {
-			var month2 = (this.value.substring(6, 7) - 1) * 6 + 1;
+		else if (this._periodicity === 'semester') {
+			var month2 = (this._value.substring(6, 7) - 1) * 6 + 1;
 			if (month2 < 10)
 				month2 = '0' + month2;
 
-			return new Date(this.value.substring(0, 5) + month2 + '-01T00:00:00Z');
+			return new Date(this._value.substring(0, 5) + month2 + '-01T00:00:00Z');
 		}
-		else if (this.periodicity === 'year')
-			return new Date(this.value + '-01-01T00:00:00Z');
+		else if (this._periodicity === 'year')
+			return new Date(this._value + '-01-01T00:00:00Z');
 
-		else if (this.periodicity === 'all')
+		else if (this._periodicity === 'all')
 			return new Date(-8640000000000000);
 	}
 
@@ -324,80 +317,80 @@ class TimeSlot {
 	 * t.firstDate.toUTCString(); // 2012-01-31T00:00:00Z
 	 */
 	get lastDate() {
-		if (this.periodicity === 'day')
+		if (this._periodicity === 'day')
 			// last day is current day
 			return this.firstDate;
 
-		else if (this.periodicity === 'month_week_sat' || this.periodicity === 'month_week_sun' || this.periodicity === 'month_week_mon') {
-			var weekNumber = this.value.substr(9, 1);
+		else if (this._periodicity === 'month_week_sat' || this._periodicity === 'month_week_sun' || this._periodicity === 'month_week_mon') {
+			var weekNumber = this._value.substr(9, 1);
 
-			var firstDayOfMonth = new Date(this.value.substring(0, 7) + '-01T00:00:00Z').getUTCDay();
+			var firstDayOfMonth = new Date(this._value.substring(0, 7) + '-01T00:00:00Z').getUTCDay();
 			var firstWeekLength;
-			if (this.periodicity === 'month_week_sat')
+			if (this._periodicity === 'month_week_sat')
 				firstWeekLength = 7 - ((firstDayOfMonth + 1) % 7);
-			else if (this.periodicity === 'month_week_sun')
+			else if (this._periodicity === 'month_week_sun')
 				firstWeekLength = 7 - firstDayOfMonth; // 1 if month start on saturday, 2 if friday, 7 if sunday
 			else
 				firstWeekLength = 7 - ((firstDayOfMonth - 1 + 7) % 7);
 
 			if (weekNumber === 1)
-				return new Date(Date.UTC(this.value.substring(0, 4), this.value.substring(5, 7) - 1, firstWeekLength));
+				return new Date(Date.UTC(this._value.substring(0, 4), this._value.substring(5, 7) - 1, firstWeekLength));
 			else {
 				var res = new Date(Date.UTC(
-					this.value.substring(0, 4),
-					this.value.substring(5, 7) - 1,
+					this._value.substring(0, 4),
+					this._value.substring(5, 7) - 1,
 					1 + 6 + firstWeekLength + (weekNumber - 2) * 7
 				));
 
-				if (res.getUTCMonth() !== this.value.substring(5, 7) - 1)
+				if (res.getUTCMonth() !== this._value.substring(5, 7) - 1)
 					res.setUTCDate(0); // go to last day of previous month.
 
 				return res;
 			}
 		}
 
-		else if (this.periodicity === 'week_sat' || this.periodicity === 'week_sun' || this.periodicity === 'week_mon') {
+		else if (this._periodicity === 'week_sat' || this._periodicity === 'week_sun' || this._periodicity === 'week_mon') {
 			// last day is last day of the week according to epoch
 			return new Date(this.firstDate.getTime() + 6 * 24 * 60 * 60 * 1000);
 		}
 
-		else if (this.periodicity === 'month') {
+		else if (this._periodicity === 'month') {
 			var monthDate = this.firstDate;
 			monthDate.setUTCMonth(monthDate.getUTCMonth() + 1); // add one month.
 			monthDate.setUTCDate(0); // go to last day of previous month.
 			return monthDate;
 		}
 
-		else if (this.periodicity === 'quarter') {
+		else if (this._periodicity === 'quarter') {
 			var quarterDate = this.firstDate;
 			quarterDate.setUTCMonth(quarterDate.getUTCMonth() + 3); // add three month.
 			quarterDate.setUTCDate(0); // go to last day of previous month.
 			return quarterDate;
 		}
 
-		else if (this.periodicity === 'semester') {
+		else if (this._periodicity === 'semester') {
 			var semesterDate = this.firstDate;
 			semesterDate.setUTCMonth(semesterDate.getUTCMonth() + 6); // add six month.
 			semesterDate.setUTCDate(0); // go to last day of previous month.
 			return semesterDate;
 		}
 
-		else if (this.periodicity === 'year')
-			return new Date(this.value + '-12-31T00:00:00Z');
+		else if (this._periodicity === 'year')
+			return new Date(this._value + '-12-31T00:00:00Z');
 
 
-		else if (this.periodicity === 'all')
+		else if (this._periodicity === 'all')
 			return new Date(8640000000000000);
 	}
 
 	get parentPeriodicities() {
-		return TimeSlot.upperSlots[this.periodicity];
+		return TimeSlot.upperSlots[this._periodicity];
 	}
 
 	get childPeriodicities() {
 		return Object
 			.keys(TimeSlot.upperSlots)
-			.filter(p => TimeSlot.upperSlots[p].indexOf(this.periodicity) !== -1);
+			.filter(p => TimeSlot.upperSlots[p].indexOf(this._periodicity) !== -1);
 	}
 
 	/**
@@ -413,35 +406,41 @@ class TimeSlot {
 	 * t2.value; // 2010-Q3
 	 */
 	toParentPeriodicity(newPeriodicity) {
-		if (newPeriodicity == this.periodicity)
+		if (newPeriodicity == this._periodicity)
 			return this;
 
-		// Raise when we make invalid conversions
-		if (this.parentPeriodicities.indexOf(newPeriodicity) === -1)
-			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
+		let parent = toParentCache[newPeriodicity].get(this._value);
+		if (!parent) {
+			// Raise when we make invalid conversions
+			if (this.parentPeriodicities.indexOf(newPeriodicity) === -1)
+				throw new Error('Cannot convert ' + this._periodicity + ' to ' + newPeriodicity);
 
-		// For days, months, quarters, semesters, we can assume that getting the slot from any date works
-		var upperSlotDate = this.firstDate;
+			// For days, months, quarters, semesters, we can assume that getting the slot from any date works
+			var upperSlotDate = this.firstDate;
 
-		// if it's a week, we need to be a bit more cautious.
-		// the month/quarter/year is not that of the first or last day, but that of the middle day of the week
-		// (which depend on the kind of week, but adding 3 days to the beginning gives the good date).
-		if (this.periodicity === 'week_sat' || this.periodicity === 'week_sun' || this.periodicity === 'week_mon')
-			upperSlotDate = new Date(upperSlotDate.getTime() + 3 * 24 * 60 * 60 * 1000);
+			// if it's a week, we need to be a bit more cautious.
+			// the month/quarter/year is not that of the first or last day, but that of the middle day of the week
+			// (which depend on the kind of week, but adding 3 days to the beginning gives the good date).
+			if (this._periodicity === 'week_sat' || this._periodicity === 'week_sun' || this._periodicity === 'week_mon')
+				upperSlotDate = new Date(upperSlotDate.getTime() + 3 * 24 * 60 * 60 * 1000);
 
-		return TimeSlot.fromDate(upperSlotDate, newPeriodicity);
+			parent = TimeSlot.fromDate(upperSlotDate, newPeriodicity);
+			toParentCache[newPeriodicity].set(this._value, parent);
+		}
+
+		return parent;
 	}
 
 	toChildPeriodicity(newPeriodicity) {
-		if (this.periodicity === 'all')
+		if (this._periodicity === 'all')
 			throw new Error('Would yield an infinite amount of children');
 
-		if (this.periodicity == newPeriodicity)
+		if (this._periodicity == newPeriodicity)
 			return [this];
 
 		// Invalid conversions
 		if (this.childPeriodicities.indexOf(newPeriodicity) === -1)
-			throw new Error('Cannot convert ' + this.periodicity + ' to ' + newPeriodicity);
+			throw new Error('Cannot convert ' + this._periodicity + ' to ' + newPeriodicity);
 
 		const end = TimeSlot.fromDate(this.lastDate, newPeriodicity);
 		let current = TimeSlot.fromDate(this.firstDate, newPeriodicity);
@@ -456,13 +455,13 @@ class TimeSlot {
 	}
 
 	previous() {
-		if (this.periodicity === 'all') {
+		if (this._periodicity === 'all') {
 			throw new Error('There is no previous slot');
 		}
 
 		var date = this.firstDate;
 		date.setUTCDate(date.getUTCDate() - 1);
-		return TimeSlot.fromDate(date, this.periodicity);
+		return TimeSlot.fromDate(date, this._periodicity);
 	}
 
 	/**
@@ -477,13 +476,20 @@ class TimeSlot {
 	 * ts.next().value // 2011-W01-sat
 	 */
 	next() {
-		if (this.periodicity === 'all') {
-			throw new Error('There is no next slot');
+		let next = nextCache.get(this._value);
+
+		if (!next) {
+			if (this._periodicity === 'all') {
+				throw new Error('There is no next slot');
+			}
+
+			var date = this.lastDate;
+			date.setUTCDate(date.getUTCDate() + 1);
+			next = TimeSlot.fromDate(date, this._periodicity);
+			nextCache.set(this._value, next);
 		}
 
-		var date = this.lastDate;
-		date.setUTCDate(date.getUTCDate() + 1);
-		return TimeSlot.fromDate(date, this.periodicity);
+		return next;
 	}
 
 	/**
@@ -499,7 +505,7 @@ class TimeSlot {
 
 		try {
 			const locale = require('./locale/' + language);
-			return locale.humanizePeriodicity(this.periodicity);
+			return locale.humanizePeriodicity(this._periodicity);
 		}
 		catch (e) {
 			throw new Error('Requested locale is not defined.');
@@ -519,7 +525,7 @@ class TimeSlot {
 
 		try {
 			const locale = require('./locale/' + language);
-			return locale.humanizeValue(this.periodicity, this.value);
+			return locale.humanizeValue(this._periodicity, this._value);
 		}
 		catch (e) {
 			throw new Error('Requested locale is not defined.');

@@ -10,6 +10,11 @@ describe("TimeSlot", () => {
 			assert.equal(ts.periodicity, 'year');
 		});
 
+		it("should work with semester format", () => {
+			let ts = new TimeSlot('2010-S1');
+			assert.equal(ts.periodicity, 'semester');
+		});
+
 		it("should work with quarter format", () => {
 			let ts = new TimeSlot('2010-Q1');
 			assert.equal(ts.periodicity, 'quarter');

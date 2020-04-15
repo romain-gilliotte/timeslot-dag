@@ -10,7 +10,9 @@
     "type": "git",
     "url": "https://github.com/romain-gilliotte/timeslot.js"
   },
-  "dependencies": {},
+  "dependencies": {
+    "hashlru": "^2.3.0"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^7.1.1",
