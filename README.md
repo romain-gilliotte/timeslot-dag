@@ -39,7 +39,7 @@ npm install timeslot-dag
 # Usage
 
 ```javascript
-const slot = new TimeSlot('2010-01')
+const slot = TimeSlot.fromValue('2010-01')
 slot.periodicity                     // 'month'
 slot.firstDate                       // Date('2010-01-01')
 slot.lastDate                        // Date('2010-01-31')
@@ -55,7 +55,7 @@ TimeSlots can be built in two ways.
 
 ```javascript
 // With the constructor by passing a *slot identifier*, which is a unique string representing any given slot.
-const slot1 = new TimeSlot('2010') // '2010' is a slot identifier
+const slot1 = TimeSlot.fromValue('2010') // '2010' is a slot identifier
 
 // With any date which is inside of the desired range, and the periodicity name
 const slot2 = TimeSlot.fromDate(new Date('2010-05-25T03:00:00Z'), 'year')
@@ -148,7 +148,7 @@ They are formatted in the following way:
 ### Humanization
 
 ```javascript
-const slot = new TimeSlot('2010-03-01')
+const slot = TimeSlot.fromValue('2010-03-01')
 slot.humanizeValue('en')       // 'March 01, 2010'
 slot.humanizePeriodicity('en') // 'Day'
 

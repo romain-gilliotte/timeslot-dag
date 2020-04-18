@@ -6,57 +6,57 @@ describe("TimeSlot", () => {
 	describe(".periodicity", () => {
 
 		it("should work with year format", () => {
-			let ts = new TimeSlot('2010');
+			let ts = TimeSlot.fromValue('2010');
 			assert.equal(ts.periodicity, 'year');
 		});
 
 		it("should work with semester format", () => {
-			let ts = new TimeSlot('2010-S1');
+			let ts = TimeSlot.fromValue('2010-S1');
 			assert.equal(ts.periodicity, 'semester');
 		});
 
 		it("should work with quarter format", () => {
-			let ts = new TimeSlot('2010-Q1');
+			let ts = TimeSlot.fromValue('2010-Q1');
 			assert.equal(ts.periodicity, 'quarter');
 		});
 
 		it("should work with month format", () => {
-			let ts = new TimeSlot('2010-10');
+			let ts = TimeSlot.fromValue('2010-10');
 			assert.equal(ts.periodicity, 'month');
 		});
 
 		it("should work with month_week_sat formats", () => {
-			let ts = new TimeSlot('2010-05-W1-sat');
+			let ts = TimeSlot.fromValue('2010-05-W1-sat');
 			assert.equal(ts.periodicity, 'month_week_sat');
 		});
 
 		it("should work with month_week_sun formats", () => {
-			let ts = new TimeSlot('2010-05-W1-sun');
+			let ts = TimeSlot.fromValue('2010-05-W1-sun');
 			assert.equal(ts.periodicity, 'month_week_sun');
 		});
 
 		it("should work with month_week_mon formats", () => {
-			let ts = new TimeSlot('2010-05-W1-mon');
+			let ts = TimeSlot.fromValue('2010-05-W1-mon');
 			assert.equal(ts.periodicity, 'month_week_mon');
 		});
 
 		it("should work with week_sat formats", () => {
-			let ts = new TimeSlot('2010-W01-sat');
+			let ts = TimeSlot.fromValue('2010-W01-sat');
 			assert.equal(ts.periodicity, 'week_sat');
 		});
 
 		it("should work with week_sun formats", () => {
-			let ts = new TimeSlot('2010-W01-sun');
+			let ts = TimeSlot.fromValue('2010-W01-sun');
 			assert.equal(ts.periodicity, 'week_sun');
 		});
 
 		it("should work with week_mon formats", () => {
-			let ts = new TimeSlot('2010-W01-mon');
+			let ts = TimeSlot.fromValue('2010-W01-mon');
 			assert.equal(ts.periodicity, 'week_mon');
 		});
 
 		it("should work with day formats", () => {
-			let ts = new TimeSlot('2010-01-02');
+			let ts = TimeSlot.fromValue('2010-01-02');
 			assert.equal(ts.periodicity, 'day');
 		});
 	});
@@ -65,13 +65,13 @@ describe("TimeSlot", () => {
 
 		it("should work with month_week_sun formats", () => {
 			let ts;
-			ts = new TimeSlot('2017-05-W1-sun');
+			ts = TimeSlot.fromValue('2017-05-W1-sun');
 			assert.equal(ts.firstDate.getUTCDate(), 1);
 
-			ts = new TimeSlot('2017-05-W2-sun');
+			ts = TimeSlot.fromValue('2017-05-W2-sun');
 			assert.equal(ts.firstDate.getUTCDate(), 7);
 
-			ts = new TimeSlot('2017-05-W5-sun');
+			ts = TimeSlot.fromValue('2017-05-W5-sun');
 			assert.equal(ts.firstDate.getUTCDate(), 28);
 		});
 
@@ -81,13 +81,13 @@ describe("TimeSlot", () => {
 
 		it("should work with month_week_sun formats", () => {
 			let ts;
-			ts = new TimeSlot('2017-05-W1-sun');
+			ts = TimeSlot.fromValue('2017-05-W1-sun');
 			assert.equal(ts.lastDate.getUTCDate(), 6);
 
-			ts = new TimeSlot('2017-05-W2-sun');
+			ts = TimeSlot.fromValue('2017-05-W2-sun');
 			assert.equal(ts.lastDate.getUTCDate(), 13);
 
-			ts = new TimeSlot('2017-05-W5-sun');
+			ts = TimeSlot.fromValue('2017-05-W5-sun');
 			assert.equal(ts.lastDate.getUTCDate(), 31);
 		});
 
@@ -96,7 +96,7 @@ describe("TimeSlot", () => {
 	describe(".previous()", () => {
 
 		it("should work with month_week_sun formats", () => {
-			let ts = new TimeSlot('2017-07-W6-sun');
+			let ts = TimeSlot.fromValue('2017-07-W6-sun');
 			ts = ts.previous(); assert.equal(ts.value, '2017-07-W5-sun');
 			ts = ts.previous(); assert.equal(ts.value, '2017-07-W4-sun');
 			ts = ts.previous(); assert.equal(ts.value, '2017-07-W3-sun');
@@ -119,7 +119,7 @@ describe("TimeSlot", () => {
 	describe(".next()", () => {
 
 		it("should work with month_week_sun formats", () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
 
 			ts = ts.next(); assert.equal(ts.value, '2017-05-W2-sun');
 			ts = ts.next(); assert.equal(ts.value, '2017-05-W3-sun');
@@ -143,7 +143,7 @@ describe("TimeSlot", () => {
 	describe(".parentPeriodicities", () => {
 
 		it('should work', () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
 			assert.deepEqual(ts.parentPeriodicities, ['week_sun', 'month', 'quarter', 'semester', 'year', 'all']);
 		});
 
@@ -152,12 +152,12 @@ describe("TimeSlot", () => {
 	describe(".childPeriodicities", () => {
 
 		it('should work with weeks', () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
 			assert.deepEqual(ts.childPeriodicities, ['day']);
 		});
 
 		it('should work with month', () => {
-			let ts = new TimeSlot('2017-05');
+			let ts = TimeSlot.fromValue('2017-05');
 			assert.deepEqual(ts.childPeriodicities, ['day', 'month_week_sat', 'month_week_sun', 'month_week_mon', 'week_sat', 'week_sun', 'week_mon']);
 		});
 
@@ -166,9 +166,9 @@ describe("TimeSlot", () => {
 	describe(".toParentPeriodicity()", () => {
 
 		it('should work', () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
-			assert.deepEqual(ts.toParentPeriodicity('year'), new TimeSlot('2017'));
-			assert.deepEqual(ts.toParentPeriodicity('month'), new TimeSlot('2017-05'));
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
+			assert.deepEqual(ts.toParentPeriodicity('year'), TimeSlot.fromValue('2017'));
+			assert.deepEqual(ts.toParentPeriodicity('month'), TimeSlot.fromValue('2017-05'));
 		});
 
 	});
@@ -176,17 +176,17 @@ describe("TimeSlot", () => {
 	describe(".toChildPeriodicity()", () => {
 
 		it('should work', () => {
-			let ts = new TimeSlot('2018-W18-sun');
+			let ts = TimeSlot.fromValue('2018-W18-sun');
 			assert.deepEqual(
 				ts.toChildPeriodicity('day').map(t => t.value),
 				[
-					new TimeSlot('2018-04-29'),
-					new TimeSlot('2018-04-30'),
-					new TimeSlot('2018-05-01'),
-					new TimeSlot('2018-05-02'),
-					new TimeSlot('2018-05-03'),
-					new TimeSlot('2018-05-04'),
-					new TimeSlot('2018-05-05')
+					TimeSlot.fromValue('2018-04-29'),
+					TimeSlot.fromValue('2018-04-30'),
+					TimeSlot.fromValue('2018-05-01'),
+					TimeSlot.fromValue('2018-05-02'),
+					TimeSlot.fromValue('2018-05-03'),
+					TimeSlot.fromValue('2018-05-04'),
+					TimeSlot.fromValue('2018-05-05')
 				].map(t => t.value)
 			);
 		});
@@ -195,19 +195,19 @@ describe("TimeSlot", () => {
 	describe(".humanizeValue()", () => {
 
 		it('should raise on invalid locale', () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
 
 			assert.throws(() => ts.humanizeValue('../../infected-pkg/test/something'));
 		})
 
 		it('should raise on missing locale', () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
 
 			assert.throws(() => ts.humanizeValue('pt'));
 		});
 
 		it('should work with month_week_*', () => {
-			let ts = new TimeSlot('2017-05-W1-sun');
+			let ts = TimeSlot.fromValue('2017-05-W1-sun');
 
 			assert.equal(ts.humanizeValue('fr'), 'Sem. 1 Mai 2017');
 			assert.equal(ts.humanizeValue('es'), 'Sem. 1 Mayo 2017');
@@ -215,7 +215,7 @@ describe("TimeSlot", () => {
 		});
 
 		it('should work with quarter', () => {
-			let ts = new TimeSlot('2017-Q4');
+			let ts = TimeSlot.fromValue('2017-Q4');
 
 			assert.equal(ts.humanizeValue('fr'), '4ème trim. 2017');
 			assert.equal(ts.humanizeValue('es'), 'Cuarto trim. 2017');
@@ -223,7 +223,7 @@ describe("TimeSlot", () => {
 		});
 
 		it('should work with all', () => {
-			let ts = new TimeSlot('all');
+			let ts = TimeSlot.fromValue('all');
 
 			assert.equal(ts.humanizeValue('fr'), 'Tout');
 			assert.equal(ts.humanizeValue('es'), 'Todo');
@@ -235,19 +235,19 @@ describe("TimeSlot", () => {
 	describe(".humanizePeriodicity()", () => {
 
 		it('should raise on invalid locale', () => {
-			let ts = new TimeSlot('2017-05');
+			let ts = TimeSlot.fromValue('2017-05');
 
 			assert.throws(() => ts.humanizePeriodicity('../../infected-pkg/test/something'));
 		})
 
 		it('should raise on missing locale', () => {
-			let ts = new TimeSlot('2017-05');
+			let ts = TimeSlot.fromValue('2017-05');
 
 			assert.throws(() => ts.humanizePeriodicity('pt'));
 		});
 
 		it('should work with provided locales', () => {
-			let ts = new TimeSlot('2017-05');
+			let ts = TimeSlot.fromValue('2017-05');
 
 			assert.equal(ts.humanizePeriodicity('fr'), 'Mois');
 			assert.equal(ts.humanizePeriodicity('es'), 'Mes');
@@ -256,7 +256,7 @@ describe("TimeSlot", () => {
 
 
 		it('should work with all', () => {
-			let ts = new TimeSlot('all');
+			let ts = TimeSlot.fromValue('all');
 
 			assert.equal(ts.humanizePeriodicity('fr'), 'Tout');
 			assert.equal(ts.humanizePeriodicity('es'), 'Todo');
