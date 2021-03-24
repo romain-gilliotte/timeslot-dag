@@ -1,11 +1,11 @@
 {
   "name": "timeslot-dag",
-  "version": "2.1.3",
+  "version": "0.0.0-development",
   "description": "Helper library to work with periods of time in javascript",
   "main": "src/timeslot.js",
   "types": "src/timeslot.d.ts",
   "author": "Romain Gilliotte",
-  "license": "ISC",
+  "license": "Unlicence",
   "repository": {
     "type": "git",
     "url": "https://github.com/romain-gilliotte/timeslot.js"
@@ -14,9 +14,9 @@
     "hashlru": "^2.3.0"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.1.1",
-    "nyc": "^15.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0",
     "rimraf": "^3.0.2"
   },
   "scripts": {

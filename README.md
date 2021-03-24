@@ -2,6 +2,8 @@
     <font size="7">TimeslotDAG</font>
 </p>
 
+[![Maintainability](https://api.codeclimate.com/v1/badges/db1f34ea63775567a38a/maintainability)](https://codeclimate.com/github/romain-gilliotte/timeslot-dag/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/db1f34ea63775567a38a/test_coverage)](https://codeclimate.com/github/romain-gilliotte/timeslot-dag/test_coverage)
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/timeslot-dag)
 ![npm](https://img.shields.io/npm/v/timeslot-dag)
 [![npm](https://img.shields.io/npm/dt/timeslot-dag.svg)](https://www.npmjs.com/package/timeslot-dag)
