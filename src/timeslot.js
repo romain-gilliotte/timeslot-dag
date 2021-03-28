@@ -7,11 +7,11 @@ const instances = HashLru(1e3);
  * This can be a given day, epidemiological week, month, quarter, ...
  */
 class TimeSlot {
-  static fromValue(value) {
+  static fromValue(value, check = false) {
     let ts = instances.get(value);
 
     if (!ts) {
-      ts = new TimeSlot(value);
+      ts = new TimeSlot(value, check);
       instances.set(value, ts);
     }
 
@@ -194,7 +194,7 @@ class TimeSlot {
    *
    * @param  {string} value A valid TimeSlot value (those can be found calling the `value` getter).
    */
-  constructor(value) {
+  constructor(value, check = false) {
     this._value = value;
     this._firstDate = null;
     this._lastDate = null;
@@ -206,16 +206,37 @@ class TimeSlot {
     // Poor man's parser.
     // The previous versions based on regexps was on the top of the profiler on monitool.
     const len = value.length;
-    if (len === 3) this._periodicity = 'all';
-    else if (len === 4) this._periodicity = 'year';
-    else if (len === 7) {
+    if (len === 3) {
+      this._periodicity = 'all';
+    } else if (len === 4) {
+      this._periodicity = 'year';
+    } else if (len === 7) {
       const charAt6 = value[5];
-      if (charAt6 === 'Q') this._periodicity = 'quarter';
-      else if (charAt6 === 'S') this._periodicity = 'semester';
-      else this._periodicity = 'month';
-    } else if (len == 10) this._periodicity = 'day';
-    else if (len == 12) this._periodicity = 'week_' + value.substr(9);
-    else if (len == 14) this._periodicity = 'month_week_' + value.substr(11);
+      if (charAt6 === 'Q') {
+        this._periodicity = 'quarter';
+      } else if (charAt6 === 'S') {
+        this._periodicity = 'semester';
+      } else {
+        this._periodicity = 'month';
+      }
+    } else if (len == 10) {
+      this._periodicity = 'day';
+    } else if (len == 12) {
+      this._periodicity = 'week_' + value.substr(9);
+    } else if (len == 14) {
+      this._periodicity = 'month_week_' + value.substr(11);
+    }
+
+    if (check) {
+      try {
+        const newValue = TimeSlot.fromDate(this.firstDate, this.periodicity);
+        if (newValue !== value) {
+          throw new Error();
+        }
+      } catch (e) {
+        throw new Error('Invalid value');
+      }
+    }
   }
 
   /**

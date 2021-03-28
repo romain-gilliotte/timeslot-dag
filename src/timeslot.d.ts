@@ -14,9 +14,10 @@ declare enum TimeSlotPeriodicity {
 }
 
 declare class TimeSlot {
+  static fromValue(value: string, check: boolean = false): TimeSlot;
   static fromDate(utcDate: string | Date, periodicity: TimeSlotPeriodicity): TimeSlot;
 
-  constructor(value: string);
+  constructor(value: string, check: boolean);
 
   get value(): string;
   get periodicity(): TimeSlotPeriodicity;

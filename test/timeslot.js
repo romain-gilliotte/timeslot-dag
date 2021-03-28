@@ -2,6 +2,13 @@ const assert = require('assert');
 const TimeSlot = require('../src/timeslot');
 
 describe('TimeSlot', () => {
+  describe('.fromValue', () => {
+    it('should not allow invalid values', () => {
+      assert.throws(() => TimeSlot.fromValue('Malaria', true));
+      assert.throws(() => new TimeSlot('Malaria', true));
+    });
+  });
+
   describe('.periodicity', () => {
     it('should work with year format', () => {
       let ts = TimeSlot.fromValue('2010');

@@ -15,6 +15,7 @@ declare type TimeSlotPeriodicity =
   | 'all';
 
 declare export class TimeSlot {
+  static fromValue(value: string, check: boolean = false): TimeSlot;
   static fromDate(utcDate: string | Date, periodicity: TimeSlotPeriodicity): TimeSlot;
 
   constructor(value: string): TimeSlot;
