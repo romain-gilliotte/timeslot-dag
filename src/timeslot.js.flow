@@ -1,37 +1,37 @@
 // @flow
 
-declare type TimeSlotPeriodicity = 'day'
-    | 'month_week_sat'
-    | 'month_week_sun'
-    | 'month_week_mon'
-    | 'week_sat'
-    | 'week_sun'
-    | 'week_mon'
-    | 'month'
-    | 'quarter'
-    | 'semester'
-    | 'year'
-    | 'all';
+declare type TimeSlotPeriodicity =
+  | 'day'
+  | 'month_week_sat'
+  | 'month_week_sun'
+  | 'month_week_mon'
+  | 'week_sat'
+  | 'week_sun'
+  | 'week_mon'
+  | 'month'
+  | 'quarter'
+  | 'semester'
+  | 'year'
+  | 'all';
 
 declare export class TimeSlot {
+  static fromDate(utcDate: string | Date, periodicity: TimeSlotPeriodicity): TimeSlot;
 
-    static fromDate(utcDate: string | Date, periodicity: TimeSlotPeriodicity): TimeSlot;
+  constructor(value: string): TimeSlot;
 
-    constructor(value: string) : TimeSlot;
+  get value(): string;
+  get periodicity(): TimeSlotPeriodicity;
+  get firstDate(): Date;
+  get lastDate(): Date;
 
-    get value(): string;
-    get periodicity(): TimeSlotPeriodicity;
-    get firstDate(): Date;
-    get lastDate(): Date;
+  get parentPeriodicities(): TimeSlotPeriodicity[];
+  get childPeriodicities(): TimeSlotPeriodicity[];
 
-    get parentPeriodicities(): TimeSlotPeriodicity[];
-    get childPeriodicities(): TimeSlotPeriodicity[];
+  toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot;
+  toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[];
 
-    toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot;
-    toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[];
-
-    previous(): TimeSlot;
-    next(): TimeSlot;
-    humanizeValue(language?: string): string;
-    humanizePeriodicity(language?: string): string;
+  previous(): TimeSlot;
+  next(): TimeSlot;
+  humanizeValue(language?: string): string;
+  humanizePeriodicity(language?: string): string;
 }
