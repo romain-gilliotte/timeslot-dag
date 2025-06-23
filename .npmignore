@@ -1,7 +1,25 @@
-.github
-.nyc_output
-assets
-coverage
-dist
-docs
-test
+# Source files (not needed in package)
+src/
+test/
+
+# Development config files
+tsconfig.json
+jest.config.js
+.prettierrc.json
+
+# Build and test artifacts
+coverage/
+.nyc_output/
+
+# Dependencies
+node_modules/
+
+# Git files
+.git/
+.gitignore
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
