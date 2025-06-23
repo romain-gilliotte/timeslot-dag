@@ -118,86 +118,27 @@ export class TimeSlot {
   }
 
   /**
-   * Get the date from which we should count weeks to compute the epidemiological week number.
-   *
-   * @private
-   * @todo
-   * This function is incredibly verbose for what it does.
-   * Probably a single divmod could give the same result but debugging was nightmarish.
+   * Calculates the epoch (start date) for epidemiologic weeks.
+   * The first week is the one with the majority of its days in the year.
+   * (ISO-like rule, works for any week start day)
    */
   private static _getEpidemiologicWeekEpoch(year: number, periodicity: TimeSlotPeriodicity): Date {
-    const SUNDAY = 0;
-    const MONDAY = 1;
-    const TUESDAY = 2;
-    const WEDNESDAY = 3;
-    const THURSDAY = 4;
-    const FRIDAY = 5;
-    const SATURDAY = 6;
+    // Map periodicity to the week start day (0=Sunday, 1=Monday, ..., 6=Saturday)
+    const weekStart: Partial<Record<TimeSlotPeriodicity, number>> = {
+      [TimeSlotPeriodicity.WeekSun]: 0,
+      [TimeSlotPeriodicity.WeekMon]: 1,
+      [TimeSlotPeriodicity.WeekSat]: 6,
+    };
+    const startDay = weekStart[periodicity];
+    if (startDay === undefined) throw new Error(`Invalid periodicity: ${periodicity}`);
 
-    const firstDay = new Date(Date.UTC(year, 0, 1, 0, 0, 0, 0)).getUTCDay();
-    let epoch: number | null = null;
-
-    if (periodicity === TimeSlotPeriodicity.WeekSun) {
-      if (firstDay === SUNDAY)
-        // Lucky us, first day of year is Sunday
-        epoch = Date.UTC(year, 0, 1, 0, 0, 0, 0);
-      else if (firstDay === MONDAY)
-        // Epidemiologic week started last day of december
-        epoch = Date.UTC(year - 1, 11, 31, 0, 0, 0, 0);
-      else if (firstDay === TUESDAY)
-        // Epidemiologic week started the previous day (still 2 day in december and 5 in january)
-        epoch = Date.UTC(year - 1, 11, 30, 0, 0, 0, 0);
-      else if (firstDay === WEDNESDAY)
-        // 3 days in december, 4 in january
-        epoch = Date.UTC(year - 1, 11, 29, 0, 0, 0, 0);
-      else if (firstDay === THURSDAY)
-        // we can't have 4 days in december, so the epoch is the 4th of january (the first sunday of the year)
-        epoch = Date.UTC(year, 0, 4, 0, 0, 0, 0);
-      else if (firstDay === FRIDAY)
-        // same as before: first sunday of the year
-        epoch = Date.UTC(year, 0, 3, 0, 0, 0, 0);
-      else if (firstDay === SATURDAY)
-        // same as before: first sunday of the year
-        epoch = Date.UTC(year, 0, 2, 0, 0, 0, 0);
-    } else if (periodicity === TimeSlotPeriodicity.WeekSat) {
-      if (firstDay === SATURDAY)
-        epoch = Date.UTC(year, 0, 1, 0, 0, 0, 0);
-      else if (firstDay === SUNDAY)
-        epoch = Date.UTC(year - 1, 11, 31, 0, 0, 0, 0);
-      else if (firstDay === MONDAY)
-        epoch = Date.UTC(year - 1, 11, 30, 0, 0, 0, 0);
-      else if (firstDay === TUESDAY)
-        epoch = Date.UTC(year - 1, 11, 29, 0, 0, 0, 0);
-      else if (firstDay === WEDNESDAY)
-        epoch = Date.UTC(year, 0, 4, 0, 0, 0, 0);
-      else if (firstDay === THURSDAY)
-        epoch = Date.UTC(year, 0, 3, 0, 0, 0, 0);
-      else if (firstDay === FRIDAY)
-        epoch = Date.UTC(year, 0, 2, 0, 0, 0, 0);
-    } else if (periodicity === TimeSlotPeriodicity.WeekMon) {
-      if (firstDay === MONDAY)
-        epoch = Date.UTC(year, 0, 1, 0, 0, 0, 0);
-      else if (firstDay === TUESDAY)
-        epoch = Date.UTC(year - 1, 11, 31, 0, 0, 0, 0);
-      else if (firstDay === WEDNESDAY)
-        epoch = Date.UTC(year - 1, 11, 30, 0, 0, 0, 0);
-      else if (firstDay === THURSDAY)
-        epoch = Date.UTC(year - 1, 11, 29, 0, 0, 0, 0);
-      else if (firstDay === FRIDAY)
-        epoch = Date.UTC(year, 0, 4, 0, 0, 0, 0);
-      else if (firstDay === SATURDAY)
-        epoch = Date.UTC(year, 0, 3, 0, 0, 0, 0);
-      else if (firstDay === SUNDAY)
-        epoch = Date.UTC(year, 0, 2, 0, 0, 0, 0);
-    } else {
-      throw new Error('Invalid day');
-    }
-
-    if (epoch === null) {
-      throw new Error('Failed to calculate epoch');
-    }
-
-    return new Date(epoch);
+    // January 4th is always in the first epidemiologic week of the year
+    const jan4 = new Date(Date.UTC(year, 0, 4));
+    const jan4Day = jan4.getUTCDay();
+    // Calculate the difference to the previous (or same) week start
+    const diff = (jan4Day - startDay + 7) % 7;
+    const epoch = new Date(Date.UTC(year, 0, 4 - diff));
+    return epoch;
   }
 
   /**
