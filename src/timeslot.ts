@@ -18,15 +18,8 @@ const instances = new Map<string, TimeSlot>();
  */
 export class TimeSlot {
   private _value: string;
-  private _firstDate: Date | null;
-  private _lastDate: Date | null;
-  private _previous: TimeSlot | null;
-  private _next: TimeSlot | null;
-  private _parents: Record<string, TimeSlot>;
-  private _children: Record<string, TimeSlot[]>;
   private _periodicity!: TimeSlotPeriodicity;
   private _strategy: TimeSlotStrategy;
-
 
   /**
    * Constructs a TimeSlot instance from a time slot value.
@@ -37,26 +30,24 @@ export class TimeSlot {
    */
   constructor(value: string, check: boolean = false) {
     this._value = value;
-    this._firstDate = null;
-    this._lastDate = null;
-    this._previous = null;
-    this._next = null;
-    this._parents = {};
-    this._children = {};
 
     // Determine periodicity and get strategy
     this._periodicity = TimeSlotStrategyFactory.determinePeriodicity(value);
     this._strategy = TimeSlotStrategyFactory.get(this._periodicity);
 
     if (check) {
-      try {
-        const newValue = TimeSlot.fromDate(this.firstDate, this._periodicity);
-        if (newValue.value !== value) {
-          throw new Error();
-        }
-      } catch {
-        throw new Error('Invalid time slot value');
+      this._validateValue(value);
+    }
+  }
+
+  private _validateValue(value: string): void {
+    try {
+      const newValue = TimeSlot.fromDate(this.firstDate, this._periodicity);
+      if (newValue.value !== value) {
+        throw new Error();
       }
+    } catch {
+      throw new Error('Invalid time slot value');
     }
   }
 
@@ -114,20 +105,20 @@ export class TimeSlot {
     return TimeSlot.fromValue(nextValue);
   }
 
-  humanizePeriodicity(language: string = 'en'): string {
+  private _getLocale(language: string): typeof en {
     const locale = LOCALES[language];
     if (!locale) {
       throw new Error(`Unknown locale: ${language}`);
     }
-    return locale.humanizePeriodicity(this.periodicity);
+    return locale;
+  }
+
+  humanizePeriodicity(language: string = 'en'): string {
+    return this._getLocale(language).humanizePeriodicity(this.periodicity);
   }
 
   humanizeValue(language: string = 'en'): string {
-    const locale = LOCALES[language];
-    if (!locale) {
-      throw new Error(`Unknown locale: ${language}`);
-    }
-    return locale.humanizeValue(this.periodicity, this.value);
+    return this._getLocale(language).humanizeValue(this.periodicity, this.value);
   }
 
   /**
