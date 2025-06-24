@@ -58,7 +58,5 @@ export class SemesterStrategy extends BaseTimeSlotStrategy {
     TimeSlotPeriodicity.MonthWeekMon,
   ];
 
-  protected getPeriodicity(): TimeSlotPeriodicity {
-    return TimeSlotPeriodicity.Semester;
-  }
+  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Semester;
 } 

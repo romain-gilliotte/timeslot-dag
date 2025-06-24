@@ -65,7 +65,7 @@ export class TimeSlot {
   }
 
   get periodicity(): TimeSlotPeriodicity {
-    return this._periodicity;
+    return this._strategy.periodicity;
   }
 
   @memoize

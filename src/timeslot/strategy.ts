@@ -8,6 +8,7 @@ export interface TimeSlotStrategy {
   fromDate(date: Date): string;
   readonly parentPeriodicities: TimeSlotPeriodicity[];
   readonly childPeriodicities: TimeSlotPeriodicity[];
+  readonly periodicity: TimeSlotPeriodicity;
   toParentPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string;
   toChildPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string[];
 }

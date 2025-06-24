@@ -58,7 +58,5 @@ export class QuarterStrategy extends BaseTimeSlotStrategy {
     TimeSlotPeriodicity.MonthWeekMon,
   ];
 
-  protected getPeriodicity(): TimeSlotPeriodicity {
-    return TimeSlotPeriodicity.Quarter;
-  }
+  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Quarter;
 } 

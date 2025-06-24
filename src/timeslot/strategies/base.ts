@@ -9,6 +9,7 @@ export abstract class BaseTimeSlotStrategy implements TimeSlotStrategy {
   abstract fromDate(date: Date): string;
   abstract readonly parentPeriodicities: TimeSlotPeriodicity[];
   abstract readonly childPeriodicities: TimeSlotPeriodicity[];
+  abstract readonly periodicity: TimeSlotPeriodicity;
 
   toParentPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string {
     // Validate that the conversion is valid
@@ -47,6 +48,4 @@ export abstract class BaseTimeSlotStrategy implements TimeSlotStrategy {
     
     return result;
   }
-
-  protected abstract getPeriodicity(): TimeSlotPeriodicity;
 } 

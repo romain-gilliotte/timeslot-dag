@@ -42,7 +42,5 @@ export class DayStrategy extends BaseTimeSlotStrategy {
 
   readonly childPeriodicities: TimeSlotPeriodicity[] = []; // Days have no children
 
-  protected getPeriodicity(): TimeSlotPeriodicity {
-    return TimeSlotPeriodicity.Day;
-  }
+  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Day;
 } 

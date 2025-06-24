@@ -38,9 +38,7 @@ export class AllStrategy extends BaseTimeSlotStrategy {
     TimeSlotPeriodicity.Year,
   ];
 
-  protected getPeriodicity(): TimeSlotPeriodicity {
-    return TimeSlotPeriodicity.All;
-  }
+  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.All;
 
   toChildPeriodicity(): string[] {
     throw new Error('Cannot enumerate children of the all periodicity');

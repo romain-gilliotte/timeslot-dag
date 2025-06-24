@@ -2,9 +2,9 @@ import { BaseTimeSlotStrategy } from './base';
 import { TimeSlotPeriodicity } from '../../periodicity';
 
 export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
-  protected abstract getWeekStartDay(): number;
-  protected abstract getPeriodicitySuffix(): string;
-  protected abstract getMonthWeekPeriodicity(): TimeSlotPeriodicity;
+  protected abstract readonly weekStartDay: number;
+  protected abstract readonly periodicitySuffix: string;
+  public abstract readonly periodicity: TimeSlotPeriodicity;
 
   calculateFirstDate(value: string): Date {
     const year = parseInt(value.substring(0, 4));
@@ -60,14 +60,14 @@ export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
       if (month === 1) {
         const prevYear = year - 1;
         const weeksInPrevMonth = this.getWeeksInMonth(prevYear, 12);
-        return `${prevYear}-12-W${weeksInPrevMonth}-${this.getPeriodicitySuffix()}`;
+        return `${prevYear}-12-W${weeksInPrevMonth}-${this.periodicitySuffix}`;
       } else {
         const prevMonth = month - 1;
         const weeksInPrevMonth = this.getWeeksInMonth(year, prevMonth);
-        return `${year}-${prevMonth < 10 ? '0' + prevMonth : prevMonth}-W${weeksInPrevMonth}-${this.getPeriodicitySuffix()}`;
+        return `${year}-${prevMonth < 10 ? '0' + prevMonth : prevMonth}-W${weeksInPrevMonth}-${this.periodicitySuffix}`;
       }
     } else {
-      return `${year}-${month < 10 ? '0' + month : month}-W${weekNumber - 1}-${this.getPeriodicitySuffix()}`;
+      return `${year}-${month < 10 ? '0' + month : month}-W${weekNumber - 1}-${this.periodicitySuffix}`;
     }
   }
 
@@ -79,13 +79,13 @@ export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
     
     if (weekNumber === weeksInMonth) {
       if (month === 12) {
-        return `${year + 1}-01-W1-${this.getPeriodicitySuffix()}`;
+        return `${year + 1}-01-W1-${this.periodicitySuffix}`;
       } else {
         const nextMonth = month + 1;
-        return `${year}-${nextMonth < 10 ? '0' + nextMonth : nextMonth}-W1-${this.getPeriodicitySuffix()}`;
+        return `${year}-${nextMonth < 10 ? '0' + nextMonth : nextMonth}-W1-${this.periodicitySuffix}`;
       }
     } else {
-      return `${year}-${month < 10 ? '0' + month : month}-W${weekNumber + 1}-${this.getPeriodicitySuffix()}`;
+      return `${year}-${month < 10 ? '0' + month : month}-W${weekNumber + 1}-${this.periodicitySuffix}`;
     }
   }
 
@@ -95,30 +95,28 @@ export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
     const firstWeekLength = this.calculateFirstWeekLength(firstDayOfMonth);
 
     if (date.getUTCDate() <= firstWeekLength) {
-      return `${prefix}W1-${this.getPeriodicitySuffix()}`;
+      return `${prefix}W1-${this.periodicitySuffix}`;
     } else {
       const weekNumber = Math.floor((date.getUTCDate() - 1 - firstWeekLength) / 7) + 2;
-      return `${prefix}W${weekNumber}-${this.getPeriodicitySuffix()}`;
+      return `${prefix}W${weekNumber}-${this.periodicitySuffix}`;
     }
   }
 
-  readonly parentPeriodicities: TimeSlotPeriodicity[] = [
-    this.getCorrespondingWeekPeriodicity(),
-    TimeSlotPeriodicity.Month,
-    TimeSlotPeriodicity.Quarter,
-    TimeSlotPeriodicity.Semester,
-    TimeSlotPeriodicity.Year,
-    TimeSlotPeriodicity.All,
-  ];
+  get parentPeriodicities(): TimeSlotPeriodicity[] {
+    return [
+      this.getCorrespondingWeekPeriodicity(),
+      TimeSlotPeriodicity.Month,
+      TimeSlotPeriodicity.Quarter,
+      TimeSlotPeriodicity.Semester,
+      TimeSlotPeriodicity.Year,
+      TimeSlotPeriodicity.All,
+    ];
+  }
 
   readonly childPeriodicities: TimeSlotPeriodicity[] = [TimeSlotPeriodicity.Day];
 
-  protected getPeriodicity(): TimeSlotPeriodicity {
-    return this.getMonthWeekPeriodicity();
-  }
-
   private getCorrespondingWeekPeriodicity(): TimeSlotPeriodicity {
-    const suffix = this.getPeriodicitySuffix();
+    const suffix = this.periodicitySuffix;
     if (suffix === 'sun') return TimeSlotPeriodicity.WeekSun;
     if (suffix === 'mon') return TimeSlotPeriodicity.WeekMon;
     if (suffix === 'sat') return TimeSlotPeriodicity.WeekSat;
@@ -126,9 +124,9 @@ export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
   }
 
   private calculateFirstWeekLength(firstDayOfMonth: number): number {
-    if (this.getPeriodicitySuffix() === 'sat') {
+    if (this.periodicitySuffix === 'sat') {
       return 7 - ((firstDayOfMonth + 1) % 7);
-    } else if (this.getPeriodicitySuffix() === 'sun') {
+    } else if (this.periodicitySuffix === 'sun') {
       return 7 - firstDayOfMonth;
     } else {
       return 7 - ((firstDayOfMonth - 1 + 7) % 7);
