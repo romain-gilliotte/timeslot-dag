@@ -2,29 +2,29 @@ import { BaseTimeSlotStrategy } from './base';
 import { TimeSlotPeriodicity } from '../../periodicity';
 
 export class AllStrategy extends BaseTimeSlotStrategy {
-  calculateFirstDate(): Date {
+  override calculateFirstDate(): Date {
     return new Date(0); // Unix epoch
   }
 
-  calculateLastDate(): Date {
+  override calculateLastDate(): Date {
     return new Date(8640000000000000); // Max date
   }
 
-  calculatePrevious(): string {
+  override calculatePrevious(): string {
     return 'all'; // All is always the same
   }
 
-  calculateNext(): string {
+  override calculateNext(): string {
     return 'all'; // All is always the same
   }
 
-  fromDate(): string {
+  override fromDate(): string {
     return 'all';
   }
 
-  readonly parentPeriodicities: TimeSlotPeriodicity[] = []; // All has no parents
+  override readonly parentPeriodicities: TimeSlotPeriodicity[] = []; // All has no parents
 
-  readonly childPeriodicities: TimeSlotPeriodicity[] = [
+  override readonly childPeriodicities: TimeSlotPeriodicity[] = [
     TimeSlotPeriodicity.Day,
     TimeSlotPeriodicity.MonthWeekSat,
     TimeSlotPeriodicity.MonthWeekSun,
@@ -38,9 +38,9 @@ export class AllStrategy extends BaseTimeSlotStrategy {
     TimeSlotPeriodicity.Year,
   ];
 
-  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.All;
+  override readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.All;
 
-  toChildPeriodicity(): string[] {
+  override toChildPeriodicity(): string[] {
     throw new Error('Cannot enumerate children of the all periodicity');
   }
 } 

@@ -2,20 +2,20 @@ import { BaseTimeSlotStrategy } from './base';
 import { TimeSlotPeriodicity } from '../../periodicity';
 
 export class QuarterStrategy extends BaseTimeSlotStrategy {
-  calculateFirstDate(value: string): Date {
+  override calculateFirstDate(value: string): Date {
     const year = parseInt(value.substring(0, 4));
     const quarter = parseInt(value.substring(6));
     return new Date(Date.UTC(year, (quarter - 1) * 3, 1));
   }
 
-  calculateLastDate(value: string): Date {
+  override calculateLastDate(value: string): Date {
     const quarterDate = this.calculateFirstDate(value);
     quarterDate.setUTCMonth(quarterDate.getUTCMonth() + 3);
     quarterDate.setUTCDate(0); // Go to last day of previous month
     return quarterDate;
   }
 
-  calculatePrevious(value: string): string {
+  override calculatePrevious(value: string): string {
     const year = parseInt(value.substring(0, 4));
     const quarter = parseInt(value.substring(6));
     
@@ -26,7 +26,7 @@ export class QuarterStrategy extends BaseTimeSlotStrategy {
     }
   }
 
-  calculateNext(value: string): string {
+  override calculateNext(value: string): string {
     const year = parseInt(value.substring(0, 4));
     const quarter = parseInt(value.substring(6));
     
@@ -37,17 +37,17 @@ export class QuarterStrategy extends BaseTimeSlotStrategy {
     }
   }
 
-  fromDate(date: Date): string {
+  override fromDate(date: Date): string {
     return `${date.getUTCFullYear()}-Q${1 + Math.floor(date.getUTCMonth() / 3)}`;
   }
 
-  readonly parentPeriodicities: TimeSlotPeriodicity[] = [
+  override readonly parentPeriodicities: TimeSlotPeriodicity[] = [
     TimeSlotPeriodicity.Semester,
     TimeSlotPeriodicity.Year,
     TimeSlotPeriodicity.All,
   ];
 
-  readonly childPeriodicities: TimeSlotPeriodicity[] = [
+  override readonly childPeriodicities: TimeSlotPeriodicity[] = [
     TimeSlotPeriodicity.Month,
     TimeSlotPeriodicity.Day,
     TimeSlotPeriodicity.WeekSat,
@@ -58,5 +58,5 @@ export class QuarterStrategy extends BaseTimeSlotStrategy {
     TimeSlotPeriodicity.MonthWeekMon,
   ];
 
-  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Quarter;
+  override readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Quarter;
 } 

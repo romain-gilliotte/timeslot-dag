@@ -4,7 +4,6 @@ import { TimeSlotPeriodicity } from '../../periodicity';
 export abstract class BaseWeekStrategy extends BaseTimeSlotStrategy {
   protected abstract readonly weekStartDay: number;
   protected abstract readonly periodicitySuffix: string;
-  public abstract readonly periodicity: TimeSlotPeriodicity;
 
   calculateFirstDate(value: string): Date {
     const year = parseInt(value.substring(0, 4));

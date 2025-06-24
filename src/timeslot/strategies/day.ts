@@ -2,31 +2,31 @@ import { BaseTimeSlotStrategy } from './base';
 import { TimeSlotPeriodicity } from '../../periodicity';
 
 export class DayStrategy extends BaseTimeSlotStrategy {
-  calculateFirstDate(value: string): Date {
+  override calculateFirstDate(value: string): Date {
     return new Date(value);
   }
 
-  calculateLastDate(value: string): Date {
+  override calculateLastDate(value: string): Date {
     return this.calculateFirstDate(value); // Same as first date for days
   }
 
-  calculatePrevious(value: string): string {
+  override calculatePrevious(value: string): string {
     const date = new Date(value);
     date.setUTCDate(date.getUTCDate() - 1);
     return date.toISOString().substring(0, 10);
   }
 
-  calculateNext(value: string): string {
+  override calculateNext(value: string): string {
     const date = new Date(value);
     date.setUTCDate(date.getUTCDate() + 1);
     return date.toISOString().substring(0, 10);
   }
 
-  fromDate(date: Date): string {
+  override fromDate(date: Date): string {
     return date.toISOString().substring(0, 10);
   }
 
-  readonly parentPeriodicities: TimeSlotPeriodicity[] = [
+  override readonly parentPeriodicities: TimeSlotPeriodicity[] = [
     TimeSlotPeriodicity.MonthWeekSat,
     TimeSlotPeriodicity.MonthWeekSun,
     TimeSlotPeriodicity.MonthWeekMon,
@@ -40,7 +40,7 @@ export class DayStrategy extends BaseTimeSlotStrategy {
     TimeSlotPeriodicity.All,
   ];
 
-  readonly childPeriodicities: TimeSlotPeriodicity[] = []; // Days have no children
+  override readonly childPeriodicities: TimeSlotPeriodicity[] = []; // Days have no children
 
-  readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Day;
+  override readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Day;
 } 
