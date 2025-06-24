@@ -3,6 +3,7 @@ import en from './locale/en';
 import fr from './locale/fr';
 import es from './locale/es';
 import { TimeSlotStrategyFactory, registerStrategies, TimeSlotStrategy } from './timeslot/strategies';
+import { memoize } from './memoize';
 
 const LOCALES: Record<string, typeof en> = { en, fr, es };
 
@@ -26,40 +27,6 @@ export class TimeSlot {
   private _periodicity!: TimeSlotPeriodicity;
   private _strategy: TimeSlotStrategy;
 
-  /**
-   * Creates a TimeSlot instance from a value, using a cache for performance
-   */
-  static fromValue(value: string, check: boolean = false): TimeSlot {
-    let ts = instances.get(value);
-
-    if (!ts) {
-      ts = new TimeSlot(value, check);
-      instances.set(value, ts);
-    }
-
-    return ts;
-  }
-
-  /**
-   * Creates a TimeSlot instance from a date and periodicity
-   * @param  {Date | string} utcDate Date which we want to build the TimeSlot around
-   * @param  {TimeSlotPeriodicity} periodicity The periodicity to use
-   * @return {TimeSlot} The TimeSlot instance of the given periodicity containing utcDate
-   *
-   * @example
-   * let ts = TimeSlot.fromDate(new Date(2010, 1, 7, 18, 34), TimeSlotPeriodicity.Month);
-   * ts.value // '2010-01'
-   *
-   * let ts2 = TimeSlot.fromDate(new Date(2010, 12, 12, 6, 21), TimeSlotPeriodicity.Quarter);
-   * ts2.value // '2010-Q4'
-   */
-  static fromDate(utcDate: Date | string, periodicity: TimeSlotPeriodicity): TimeSlot {
-    if (typeof utcDate === 'string') utcDate = new Date(utcDate);
-
-    const strategy = TimeSlotStrategyFactory.get(periodicity);
-    const value = strategy.fromDate(utcDate);
-    return TimeSlot.fromValue(value);
-  }
 
   /**
    * Constructs a TimeSlot instance from a time slot value.
@@ -101,19 +68,14 @@ export class TimeSlot {
     return this._periodicity;
   }
 
+  @memoize
   get firstDate(): Date {
-    if (this._firstDate === null) {
-      this._firstDate = this._strategy.calculateFirstDate(this._value);
-    }
-    return this._firstDate;
+    return this._strategy.calculateFirstDate(this._value);
   }
 
+  @memoize
   get lastDate(): Date {
-    if (this._lastDate === null) {
-      const firstDate = this.firstDate;
-      this._lastDate = this._strategy.calculateLastDate(this._value, firstDate);
-    }
-    return this._lastDate;
+    return this._strategy.calculateLastDate(this._value, this.firstDate);
   }
 
   get parentPeriodicities(): TimeSlotPeriodicity[] {
@@ -124,42 +86,32 @@ export class TimeSlot {
     return this._strategy.childPeriodicities;
   }
 
+  @memoize
   toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot {
-    if (!this._parents[newPeriodicity]) {
-      if (newPeriodicity === this.periodicity) {
-        this._parents[newPeriodicity] = this;
-      } else {
-        const parentValue = this._strategy.toParentPeriodicity(this._value, newPeriodicity);
-        this._parents[newPeriodicity] = TimeSlot.fromValue(parentValue);
-      }
+    if (newPeriodicity === this.periodicity) {
+      return this;
+    } else {
+      const parentValue = this._strategy.toParentPeriodicity(this._value, newPeriodicity);
+      return TimeSlot.fromValue(parentValue);
     }
-
-    return this._parents[newPeriodicity];
   }
 
+  @memoize
   toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[] {
-    if (!this._children[newPeriodicity]) {
-      const childValues = this._strategy.toChildPeriodicity(this._value, newPeriodicity);
-      this._children[newPeriodicity] = childValues.map(value => TimeSlot.fromValue(value));
-    }
-
-    return this._children[newPeriodicity];
+    const childValues = this._strategy.toChildPeriodicity(this._value, newPeriodicity);
+    return childValues.map(value => TimeSlot.fromValue(value));
   }
 
+  @memoize
   previous(): TimeSlot {
-    if (this._previous === null) {
-      const previousValue = this._strategy.calculatePrevious(this._value);
-      this._previous = TimeSlot.fromValue(previousValue);
-    }
-    return this._previous;
+    const previousValue = this._strategy.calculatePrevious(this._value);
+    return TimeSlot.fromValue(previousValue);
   }
 
+  @memoize
   next(): TimeSlot {
-    if (this._next === null) {
-      const nextValue = this._strategy.calculateNext(this._value);
-      this._next = TimeSlot.fromValue(nextValue);
-    }
-    return this._next;
+    const nextValue = this._strategy.calculateNext(this._value);
+    return TimeSlot.fromValue(nextValue);
   }
 
   humanizePeriodicity(language: string = 'en'): string {
@@ -176,5 +128,40 @@ export class TimeSlot {
       throw new Error(`Unknown locale: ${language}`);
     }
     return locale.humanizeValue(this.periodicity, this.value);
+  }
+
+  /**
+   * Creates a TimeSlot instance from a value, using a cache for performance
+   */
+  static fromValue(value: string, check: boolean = false): TimeSlot {
+    let ts = instances.get(value);
+
+    if (!ts) {
+      ts = new TimeSlot(value, check);
+      instances.set(value, ts);
+    }
+
+    return ts;
+  }
+
+  /**
+   * Creates a TimeSlot instance from a date and periodicity
+   * @param  {Date | string} utcDate Date which we want to build the TimeSlot around
+   * @param  {TimeSlotPeriodicity} periodicity The periodicity to use
+   * @return {TimeSlot} The TimeSlot instance of the given periodicity containing utcDate
+   *
+   * @example
+   * let ts = TimeSlot.fromDate(new Date(2010, 1, 7, 18, 34), TimeSlotPeriodicity.Month);
+   * ts.value // '2010-01'
+   *
+   * let ts2 = TimeSlot.fromDate(new Date(2010, 12, 12, 6, 21), TimeSlotPeriodicity.Quarter);
+   * ts2.value // '2010-Q4'
+   */
+  static fromDate(utcDate: Date | string, periodicity: TimeSlotPeriodicity): TimeSlot {
+    if (typeof utcDate === 'string') utcDate = new Date(utcDate);
+
+    const strategy = TimeSlotStrategyFactory.get(periodicity);
+    const value = strategy.fromDate(utcDate);
+    return TimeSlot.fromValue(value);
   }
 } 
