@@ -1,14 +1,12 @@
 import { TimeSlotPeriodicity } from '../periodicity';
 
 export interface TimeSlotStrategy {
+  readonly periodicity: TimeSlotPeriodicity;
   calculateFirstDate(value: string): Date;
   calculateLastDate(value: string, firstDate: Date): Date;
   calculatePrevious(value: string): string;
   calculateNext(value: string): string;
   fromDate(date: Date): string;
-  readonly parentPeriodicities: TimeSlotPeriodicity[];
-  readonly childPeriodicities: TimeSlotPeriodicity[];
-  readonly periodicity: TimeSlotPeriodicity;
   toParentPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string;
   toChildPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string[];
 }
@@ -51,10 +49,10 @@ export class TimeSlotStrategyFactory {
     } else if (len === 10) {
       return TimeSlotPeriodicity.Day;
     } else if (len === 12) {
-      return `week_${value.substr(9)}` as TimeSlotPeriodicity;
+      return `week_${value.substring(9)}` as TimeSlotPeriodicity;
     } else if (len === 14) {
-      return `month_week_${value.substr(11)}` as TimeSlotPeriodicity;
+      return `month_week_${value.substring(11)}` as TimeSlotPeriodicity;
     }
     throw new Error('Invalid time slot value');
   }
-} 
+}

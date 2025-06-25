@@ -19,6 +19,7 @@ export default [
     },
     rules: {
       ...tseslint.configs.recommended.rules,
+      '@typescript-eslint/member-ordering': 'error',
     },
   },
   {
@@ -36,4 +37,4 @@ export default [
       },
     },
   },
-]; 
+];

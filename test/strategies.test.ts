@@ -6,13 +6,13 @@ describe('Strategy Tests', () => {
     it('should calculate first date correctly', () => {
       const ts = TimeSlot.fromValue('2023-Q1');
       expect(ts.firstDate).toEqual(new Date(Date.UTC(2023, 0, 1)));
-      
+
       const ts2 = TimeSlot.fromValue('2023-Q2');
       expect(ts2.firstDate).toEqual(new Date(Date.UTC(2023, 3, 1)));
-      
+
       const ts3 = TimeSlot.fromValue('2023-Q3');
       expect(ts3.firstDate).toEqual(new Date(Date.UTC(2023, 6, 1)));
-      
+
       const ts4 = TimeSlot.fromValue('2023-Q4');
       expect(ts4.firstDate).toEqual(new Date(Date.UTC(2023, 9, 1)));
     });
@@ -20,13 +20,13 @@ describe('Strategy Tests', () => {
     it('should calculate last date correctly', () => {
       const ts = TimeSlot.fromValue('2023-Q1');
       expect(ts.lastDate).toEqual(new Date(Date.UTC(2023, 2, 31)));
-      
+
       const ts2 = TimeSlot.fromValue('2023-Q2');
       expect(ts2.lastDate).toEqual(new Date(Date.UTC(2023, 5, 30)));
-      
+
       const ts3 = TimeSlot.fromValue('2023-Q3');
       expect(ts3.lastDate).toEqual(new Date(Date.UTC(2023, 8, 30)));
-      
+
       const ts4 = TimeSlot.fromValue('2023-Q4');
       expect(ts4.lastDate).toEqual(new Date(Date.UTC(2023, 11, 31)));
     });
@@ -35,7 +35,7 @@ describe('Strategy Tests', () => {
       let ts = TimeSlot.fromValue('2023-Q2');
       ts = ts.previous();
       expect(ts.value).toBe('2023-Q1');
-      
+
       ts = TimeSlot.fromValue('2023-Q1');
       ts = ts.previous();
       expect(ts.value).toBe('2022-Q4');
@@ -45,7 +45,7 @@ describe('Strategy Tests', () => {
       let ts = TimeSlot.fromValue('2023-Q2');
       ts = ts.next();
       expect(ts.value).toBe('2023-Q3');
-      
+
       ts = TimeSlot.fromValue('2023-Q4');
       ts = ts.next();
       expect(ts.value).toBe('2024-Q1');
@@ -55,15 +55,15 @@ describe('Strategy Tests', () => {
       const date1 = new Date(Date.UTC(2023, 0, 15)); // January
       const ts1 = TimeSlot.fromDate(date1, TimeSlotPeriodicity.Quarter);
       expect(ts1.value).toBe('2023-Q1');
-      
+
       const date2 = new Date(Date.UTC(2023, 3, 15)); // April
       const ts2 = TimeSlot.fromDate(date2, TimeSlotPeriodicity.Quarter);
       expect(ts2.value).toBe('2023-Q2');
-      
+
       const date3 = new Date(Date.UTC(2023, 6, 15)); // July
       const ts3 = TimeSlot.fromDate(date3, TimeSlotPeriodicity.Quarter);
       expect(ts3.value).toBe('2023-Q3');
-      
+
       const date4 = new Date(Date.UTC(2023, 9, 15)); // October
       const ts4 = TimeSlot.fromDate(date4, TimeSlotPeriodicity.Quarter);
       expect(ts4.value).toBe('2023-Q4');
@@ -81,14 +81,14 @@ describe('Strategy Tests', () => {
     it('should have correct child periodicities', () => {
       const ts = TimeSlot.fromValue('2023-Q2');
       expect(ts.childPeriodicities).toEqual([
-        TimeSlotPeriodicity.Month,
         TimeSlotPeriodicity.Day,
-        TimeSlotPeriodicity.WeekSat,
-        TimeSlotPeriodicity.WeekSun,
-        TimeSlotPeriodicity.WeekMon,
         TimeSlotPeriodicity.MonthWeekSat,
         TimeSlotPeriodicity.MonthWeekSun,
         TimeSlotPeriodicity.MonthWeekMon,
+        TimeSlotPeriodicity.WeekSat,
+        TimeSlotPeriodicity.WeekSun,
+        TimeSlotPeriodicity.WeekMon,
+        TimeSlotPeriodicity.Month,
       ]);
     });
   });
@@ -97,7 +97,7 @@ describe('Strategy Tests', () => {
     it('should calculate first date correctly', () => {
       const ts = TimeSlot.fromValue('2023-S1');
       expect(ts.firstDate).toEqual(new Date(Date.UTC(2023, 0, 1)));
-      
+
       const ts2 = TimeSlot.fromValue('2023-S2');
       expect(ts2.firstDate).toEqual(new Date(Date.UTC(2023, 6, 1)));
     });
@@ -105,7 +105,7 @@ describe('Strategy Tests', () => {
     it('should calculate last date correctly', () => {
       const ts = TimeSlot.fromValue('2023-S1');
       expect(ts.lastDate).toEqual(new Date(Date.UTC(2023, 5, 30)));
-      
+
       const ts2 = TimeSlot.fromValue('2023-S2');
       expect(ts2.lastDate).toEqual(new Date(Date.UTC(2023, 11, 31)));
     });
@@ -114,7 +114,7 @@ describe('Strategy Tests', () => {
       let ts = TimeSlot.fromValue('2023-S2');
       ts = ts.previous();
       expect(ts.value).toBe('2023-S1');
-      
+
       ts = TimeSlot.fromValue('2023-S1');
       ts = ts.previous();
       expect(ts.value).toBe('2022-S2');
@@ -124,7 +124,7 @@ describe('Strategy Tests', () => {
       let ts = TimeSlot.fromValue('2023-S1');
       ts = ts.next();
       expect(ts.value).toBe('2023-S2');
-      
+
       ts = TimeSlot.fromValue('2023-S2');
       ts = ts.next();
       expect(ts.value).toBe('2024-S1');
@@ -134,7 +134,7 @@ describe('Strategy Tests', () => {
       const date1 = new Date(Date.UTC(2023, 2, 15)); // March (S1)
       const ts1 = TimeSlot.fromDate(date1, TimeSlotPeriodicity.Semester);
       expect(ts1.value).toBe('2023-S1');
-      
+
       const date2 = new Date(Date.UTC(2023, 8, 15)); // September (S2)
       const ts2 = TimeSlot.fromDate(date2, TimeSlotPeriodicity.Semester);
       expect(ts2.value).toBe('2023-S2');
@@ -142,24 +142,21 @@ describe('Strategy Tests', () => {
 
     it('should have correct parent periodicities', () => {
       const ts = TimeSlot.fromValue('2023-S1');
-      expect(ts.parentPeriodicities).toEqual([
-        TimeSlotPeriodicity.Year,
-        TimeSlotPeriodicity.All,
-      ]);
+      expect(ts.parentPeriodicities).toEqual([TimeSlotPeriodicity.Year, TimeSlotPeriodicity.All]);
     });
 
     it('should have correct child periodicities', () => {
       const ts = TimeSlot.fromValue('2023-S1');
       expect(ts.childPeriodicities).toEqual([
-        TimeSlotPeriodicity.Quarter,
-        TimeSlotPeriodicity.Month,
         TimeSlotPeriodicity.Day,
-        TimeSlotPeriodicity.WeekSat,
-        TimeSlotPeriodicity.WeekSun,
-        TimeSlotPeriodicity.WeekMon,
         TimeSlotPeriodicity.MonthWeekSat,
         TimeSlotPeriodicity.MonthWeekSun,
         TimeSlotPeriodicity.MonthWeekMon,
+        TimeSlotPeriodicity.WeekSat,
+        TimeSlotPeriodicity.WeekSun,
+        TimeSlotPeriodicity.WeekMon,
+        TimeSlotPeriodicity.Month,
+        TimeSlotPeriodicity.Quarter,
       ]);
     });
   });
@@ -201,16 +198,16 @@ describe('Strategy Tests', () => {
     it('should have correct child periodicities', () => {
       const ts = TimeSlot.fromValue('2023');
       expect(ts.childPeriodicities).toEqual([
-        TimeSlotPeriodicity.Semester,
-        TimeSlotPeriodicity.Quarter,
-        TimeSlotPeriodicity.Month,
         TimeSlotPeriodicity.Day,
-        TimeSlotPeriodicity.WeekSat,
-        TimeSlotPeriodicity.WeekSun,
-        TimeSlotPeriodicity.WeekMon,
         TimeSlotPeriodicity.MonthWeekSat,
         TimeSlotPeriodicity.MonthWeekSun,
         TimeSlotPeriodicity.MonthWeekMon,
+        TimeSlotPeriodicity.WeekSat,
+        TimeSlotPeriodicity.WeekSun,
+        TimeSlotPeriodicity.WeekMon,
+        TimeSlotPeriodicity.Month,
+        TimeSlotPeriodicity.Quarter,
+        TimeSlotPeriodicity.Semester,
       ]);
     });
   });
@@ -271,4 +268,4 @@ describe('Strategy Tests', () => {
       }).toThrow('Cannot enumerate children of the all periodicity');
     });
   });
-}); 
+});

@@ -1,48 +1,35 @@
 import { BaseTimeSlotStrategy } from './base';
-import { TimeSlotPeriodicity } from '../../periodicity';
 
 export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
   protected abstract readonly weekStartDay: number;
   protected abstract readonly periodicitySuffix: string;
 
   calculateFirstDate(value: string): Date {
-    const year = parseInt(value.substring(0, 4));
-    const month = parseInt(value.substring(5, 7)) - 1;
-    const weekNumber = parseInt(value.substring(9, value.indexOf('-', 9)));
-    
-    const firstDayOfMonth = new Date(Date.UTC(year, month, 1));
+    const { year, month, weekNumber } = this.parseValue(value);
+
+    const firstDayOfMonth = new Date(Date.UTC(year, month - 1, 1));
     const firstDayOfMonthDay = firstDayOfMonth.getUTCDay();
     const firstWeekLength = this.calculateFirstWeekLength(firstDayOfMonthDay);
 
-    if (weekNumber === 1) {
-      return firstDayOfMonth;
-    } else {
-      return new Date(Date.UTC(
-        year,
-        month,
-        1 + firstWeekLength + (weekNumber - 2) * 7
-      ));
-    }
+    return weekNumber === 1
+      ? firstDayOfMonth
+      : new Date(Date.UTC(year, month - 1, 1 + firstWeekLength + (weekNumber - 2) * 7));
   }
 
   calculateLastDate(value: string): Date {
-    const weekNumber = parseInt(value.substr(9, 1));
-    const year = parseInt(value.substring(0, 4));
-    const month = parseInt(value.substring(5, 7)) - 1;
-    
+    const { year, month, weekNumber } = this.parseValue(value);
+
     const firstDayOfMonth = new Date(value.substring(0, 7) + '-01T00:00:00Z').getUTCDay();
     const firstWeekLength = this.calculateFirstWeekLength(firstDayOfMonth);
 
     if (weekNumber === 1) {
-      return new Date(Date.UTC(year, month, firstWeekLength));
+      return new Date(Date.UTC(year, month - 1, firstWeekLength));
     } else {
-      const res = new Date(Date.UTC(
-        year,
-        month,
-        1 + 6 + firstWeekLength + (weekNumber - 2) * 7
-      ));
+      const res = new Date(
+        Date.UTC(year, month - 1, 1 + 6 + firstWeekLength + (weekNumber - 2) * 7)
+      );
 
-      if (res.getUTCMonth() !== month) {
+      if (res.getUTCMonth() !== month - 1) {
         res.setUTCDate(0);
       }
 
@@ -51,75 +38,59 @@ export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
   }
 
   calculatePrevious(value: string): string {
-    const year = parseInt(value.substring(0, 4));
-    const month = parseInt(value.substring(5, 7));
-    const weekNumber = parseInt(value.substring(9, value.indexOf('-', 9)));
-    
-    if (weekNumber === 1) {
-      if (month === 1) {
-        const prevYear = year - 1;
-        const weeksInPrevMonth = this.getWeeksInMonth(prevYear, 12);
-        return `${prevYear}-12-W${weeksInPrevMonth}-${this.periodicitySuffix}`;
-      } else {
-        const prevMonth = month - 1;
-        const weeksInPrevMonth = this.getWeeksInMonth(year, prevMonth);
-        return `${year}-${prevMonth < 10 ? '0' + prevMonth : prevMonth}-W${weeksInPrevMonth}-${this.periodicitySuffix}`;
-      }
-    } else {
-      return `${year}-${month < 10 ? '0' + month : month}-W${weekNumber - 1}-${this.periodicitySuffix}`;
-    }
+    const { year, month, weekNumber } = this.parseValue(value);
+
+    return weekNumber === 1
+      ? this.getPreviousMonthWeek(year, month)
+      : `${year}-${this.padMonth(month)}-W${weekNumber - 1}-${this.periodicitySuffix}`;
   }
 
   calculateNext(value: string): string {
-    const year = parseInt(value.substring(0, 4));
-    const month = parseInt(value.substring(5, 7));
-    const weekNumber = parseInt(value.substring(9, value.indexOf('-', 9)));
+    const { year, month, weekNumber } = this.parseValue(value);
     const weeksInMonth = this.getWeeksInMonth(year, month);
-    
-    if (weekNumber === weeksInMonth) {
-      if (month === 12) {
-        return `${year + 1}-01-W1-${this.periodicitySuffix}`;
-      } else {
-        const nextMonth = month + 1;
-        return `${year}-${nextMonth < 10 ? '0' + nextMonth : nextMonth}-W1-${this.periodicitySuffix}`;
-      }
-    } else {
-      return `${year}-${month < 10 ? '0' + month : month}-W${weekNumber + 1}-${this.periodicitySuffix}`;
-    }
+
+    return weekNumber === weeksInMonth
+      ? this.getNextMonthWeek(year, month)
+      : `${year}-${this.padMonth(month)}-W${weekNumber + 1}-${this.periodicitySuffix}`;
   }
 
   fromDate(date: Date): string {
     const prefix = date.toISOString().substring(0, 8);
-    const firstDayOfMonth = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)).getUTCDay();
+    const firstDayOfMonth = new Date(
+      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)
+    ).getUTCDay();
     const firstWeekLength = this.calculateFirstWeekLength(firstDayOfMonth);
 
-    if (date.getUTCDate() <= firstWeekLength) {
-      return `${prefix}W1-${this.periodicitySuffix}`;
-    } else {
-      const weekNumber = Math.floor((date.getUTCDate() - 1 - firstWeekLength) / 7) + 2;
-      return `${prefix}W${weekNumber}-${this.periodicitySuffix}`;
-    }
+    return date.getUTCDate() <= firstWeekLength
+      ? `${prefix}W1-${this.periodicitySuffix}`
+      : `${prefix}W${Math.floor((date.getUTCDate() - 1 - firstWeekLength) / 7) + 2}-${
+          this.periodicitySuffix
+        }`;
   }
 
-  get parentPeriodicities(): TimeSlotPeriodicity[] {
-    return [
-      this.getCorrespondingWeekPeriodicity(),
-      TimeSlotPeriodicity.Month,
-      TimeSlotPeriodicity.Quarter,
-      TimeSlotPeriodicity.Semester,
-      TimeSlotPeriodicity.Year,
-      TimeSlotPeriodicity.All,
-    ];
+  private parseValue(value: string): { year: number; month: number; weekNumber: number } {
+    const year = parseInt(value.substring(0, 4));
+    const month = parseInt(value.substring(5, 7));
+    const weekNumber = parseInt(value.substring(9, value.indexOf('-', 9)));
+    return { year, month, weekNumber };
   }
 
-  readonly childPeriodicities: TimeSlotPeriodicity[] = [TimeSlotPeriodicity.Day];
+  private getPreviousMonthWeek(year: number, month: number): string {
+    return month === 1
+      ? `${year - 1}-12-W${this.getWeeksInMonth(year - 1, 12)}-${this.periodicitySuffix}`
+      : `${year}-${this.padMonth(month - 1)}-W${this.getWeeksInMonth(year, month - 1)}-${
+          this.periodicitySuffix
+        }`;
+  }
 
-  private getCorrespondingWeekPeriodicity(): TimeSlotPeriodicity {
-    const suffix = this.periodicitySuffix;
-    if (suffix === 'sun') return TimeSlotPeriodicity.WeekSun;
-    if (suffix === 'mon') return TimeSlotPeriodicity.WeekMon;
-    if (suffix === 'sat') return TimeSlotPeriodicity.WeekSat;
-    throw new Error(`Unknown week suffix: ${suffix}`);
+  private getNextMonthWeek(year: number, month: number): string {
+    return month === 12
+      ? `${year + 1}-01-W1-${this.periodicitySuffix}`
+      : `${year}-${this.padMonth(month + 1)}-W1-${this.periodicitySuffix}`;
+  }
+
+  private padMonth(month: number): string {
+    return month < 10 ? `0${month}` : month.toString();
   }
 
   private calculateFirstWeekLength(firstDayOfMonth: number): number {
@@ -137,10 +108,10 @@ export abstract class BaseMonthWeekStrategy extends BaseTimeSlotStrategy {
     const lastDayOfMonth = new Date(Date.UTC(year, month, 0));
     const firstDayOfMonthDay = firstDayOfMonth.getUTCDay();
     const firstWeekLength = this.calculateFirstWeekLength(firstDayOfMonthDay);
-    
+
     const daysInMonth = lastDayOfMonth.getUTCDate();
     const remainingDays = daysInMonth - firstWeekLength;
-    
+
     return Math.ceil(remainingDays / 7) + 1;
   }
-} 
+}
