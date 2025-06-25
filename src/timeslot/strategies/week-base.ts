@@ -1,13 +1,11 @@
 import { BaseTimeSlotStrategy } from './base';
-import { TimeSlotPeriodicity } from '../../periodicity';
 
 export abstract class BaseWeekStrategy extends BaseTimeSlotStrategy {
   protected abstract readonly weekStartDay: number;
   protected abstract readonly periodicitySuffix: string;
 
   calculateFirstDate(value: string): Date {
-    const year = parseInt(value.substring(0, 4));
-    const weekNumber = parseInt(value.substring(6, 8));
+    const { year, weekNumber } = this.parseValue(value);
     const epoch = this.getEpidemiologicWeekEpoch(year);
     return new Date(epoch.getTime() + (weekNumber - 1) * 7 * 24 * 60 * 60 * 1000);
   }
@@ -18,35 +16,26 @@ export abstract class BaseWeekStrategy extends BaseTimeSlotStrategy {
   }
 
   calculatePrevious(value: string): string {
-    const year = parseInt(value.substring(0, 4));
-    const weekNumber = parseInt(value.substring(6, 8));
-    
-    if (weekNumber === 1) {
-      const prevYear = year - 1;
-      const prevYearEpoch = this.getEpidemiologicWeekEpoch(prevYear);
-      const nextYearEpoch = this.getEpidemiologicWeekEpoch(year);
-      const weeksInPrevYear = Math.floor((nextYearEpoch.getTime() - prevYearEpoch.getTime()) / (7 * 24 * 60 * 60 * 1000));
-      return `${prevYear}-W${weeksInPrevYear < 10 ? '0' + weeksInPrevYear : weeksInPrevYear}-${this.periodicitySuffix}`;
-    } else {
-      const prevWeek = weekNumber - 1;
-      return `${year}-W${prevWeek < 10 ? '0' + prevWeek : prevWeek}-${this.periodicitySuffix}`;
-    }
+    const { year, weekNumber } = this.parseValue(value);
+
+    return weekNumber === 1
+      ? this.getPreviousYearWeek(year)
+      : `${year}-W${this.padWeek(weekNumber - 1)}-${this.periodicitySuffix}`;
   }
 
   calculateNext(value: string): string {
-    const year = parseInt(value.substring(0, 4));
-    const weekNumber = parseInt(value.substring(6, 8));
+    const { year, weekNumber } = this.parseValue(value);
     const nextWeek = weekNumber + 1;
-    
+
     const epoch = this.getEpidemiologicWeekEpoch(year);
     const nextYearEpoch = this.getEpidemiologicWeekEpoch(year + 1);
-    const weeksInYear = Math.floor((nextYearEpoch.getTime() - epoch.getTime()) / (7 * 24 * 60 * 60 * 1000));
-    
-    if (nextWeek > weeksInYear) {
-      return `${year + 1}-W01-${this.periodicitySuffix}`;
-    } else {
-      return `${year}-W${nextWeek < 10 ? '0' + nextWeek : nextWeek}-${this.periodicitySuffix}`;
-    }
+    const weeksInYear = Math.floor(
+      (nextYearEpoch.getTime() - epoch.getTime()) / (7 * 24 * 60 * 60 * 1000)
+    );
+
+    return nextWeek > weeksInYear
+      ? `${year + 1}-W01-${this.periodicitySuffix}`
+      : `${year}-W${this.padWeek(nextWeek)}-${this.periodicitySuffix}`;
   }
 
   fromDate(date: Date): string {
@@ -57,21 +46,32 @@ export abstract class BaseWeekStrategy extends BaseTimeSlotStrategy {
       epoch = this.getEpidemiologicWeekEpoch(--year);
     }
 
-    const weekNumber = Math.floor((date.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24 * 7)) + 1;
-    const paddedWeekNumber = weekNumber < 10 ? `0${weekNumber}` : weekNumber.toString();
+    const weekNumber =
+      Math.floor((date.getTime() - epoch.getTime()) / (1000 * 60 * 60 * 24 * 7)) + 1;
+    const paddedWeekNumber = this.padWeek(weekNumber);
 
     return `${year}-W${paddedWeekNumber}-${this.periodicitySuffix}`;
   }
 
-  readonly parentPeriodicities: TimeSlotPeriodicity[] = [
-    TimeSlotPeriodicity.Month,
-    TimeSlotPeriodicity.Quarter,
-    TimeSlotPeriodicity.Semester,
-    TimeSlotPeriodicity.Year,
-    TimeSlotPeriodicity.All,
-  ];
+  private parseValue(value: string): { year: number; weekNumber: number } {
+    const year = parseInt(value.substring(0, 4));
+    const weekNumber = parseInt(value.substring(6, 8));
+    return { year, weekNumber };
+  }
 
-  readonly childPeriodicities: TimeSlotPeriodicity[] = [TimeSlotPeriodicity.Day];
+  private getPreviousYearWeek(year: number): string {
+    const prevYear = year - 1;
+    const prevYearEpoch = this.getEpidemiologicWeekEpoch(prevYear);
+    const nextYearEpoch = this.getEpidemiologicWeekEpoch(year);
+    const weeksInPrevYear = Math.floor(
+      (nextYearEpoch.getTime() - prevYearEpoch.getTime()) / (7 * 24 * 60 * 60 * 1000)
+    );
+    return `${prevYear}-W${this.padWeek(weeksInPrevYear)}-${this.periodicitySuffix}`;
+  }
+
+  private padWeek(week: number): string {
+    return week < 10 ? `0${week}` : week.toString();
+  }
 
   private getEpidemiologicWeekEpoch(year: number): Date {
     const startDay = this.weekStartDay;
@@ -80,4 +80,4 @@ export abstract class BaseWeekStrategy extends BaseTimeSlotStrategy {
     const diff = (jan4Day - startDay + 7) % 7;
     return new Date(Date.UTC(year, 0, 4 - diff));
   }
-} 
+}

@@ -2,12 +2,11 @@ import { BaseTimeSlotStrategy } from './base';
 import { TimeSlotPeriodicity } from '../../periodicity';
 
 export class MonthStrategy extends BaseTimeSlotStrategy {
+  override readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Month;
+
   override calculateFirstDate(value: string): Date {
-    return new Date(Date.UTC(
-      parseInt(value.substring(0, 4)),
-      parseInt(value.substring(5, 7)) - 1,
-      1
-    ));
+    const { year, month } = this.parseValue(value);
+    return new Date(Date.UTC(year, month - 1, 1));
   }
 
   override calculateLastDate(value: string): Date {
@@ -18,49 +17,26 @@ export class MonthStrategy extends BaseTimeSlotStrategy {
   }
 
   override calculatePrevious(value: string): string {
-    const year = parseInt(value.substring(0, 4));
-    const month = parseInt(value.substring(5, 7));
-    
-    if (month === 1) {
-      return `${year - 1}-12`;
-    } else {
-      const prevMonth = month - 1;
-      return `${year}-${prevMonth < 10 ? '0' + prevMonth : prevMonth}`;
-    }
+    const { year, month } = this.parseValue(value);
+    return month === 1 ? `${year - 1}-12` : `${year}-${this.padMonth(month - 1)}`;
   }
 
   override calculateNext(value: string): string {
-    const year = parseInt(value.substring(0, 4));
-    const month = parseInt(value.substring(5, 7));
-    
-    if (month === 12) {
-      return `${year + 1}-01`;
-    } else {
-      const nextMonth = month + 1;
-      return `${year}-${nextMonth < 10 ? '0' + nextMonth : nextMonth}`;
-    }
+    const { year, month } = this.parseValue(value);
+    return month === 12 ? `${year + 1}-01` : `${year}-${this.padMonth(month + 1)}`;
   }
 
   override fromDate(date: Date): string {
     return date.toISOString().substring(0, 7);
   }
 
-  override readonly parentPeriodicities: TimeSlotPeriodicity[] = [
-    TimeSlotPeriodicity.Quarter,
-    TimeSlotPeriodicity.Semester,
-    TimeSlotPeriodicity.Year,
-    TimeSlotPeriodicity.All,
-  ];
+  private parseValue(value: string): { year: number; month: number } {
+    const year = parseInt(value.substring(0, 4));
+    const month = parseInt(value.substring(5, 7));
+    return { year, month };
+  }
 
-  override readonly childPeriodicities: TimeSlotPeriodicity[] = [
-    TimeSlotPeriodicity.Day,
-    TimeSlotPeriodicity.MonthWeekSat,
-    TimeSlotPeriodicity.MonthWeekSun,
-    TimeSlotPeriodicity.MonthWeekMon,
-    TimeSlotPeriodicity.WeekSat,
-    TimeSlotPeriodicity.WeekSun,
-    TimeSlotPeriodicity.WeekMon,
-  ];
-
-  override readonly periodicity: TimeSlotPeriodicity = TimeSlotPeriodicity.Month;
-} 
+  private padMonth(month: number): string {
+    return month < 10 ? `0${month}` : month.toString();
+  }
+}

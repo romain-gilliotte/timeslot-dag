@@ -1,8 +1,12 @@
-import { TimeSlotPeriodicity } from './periodicity';
+import { TimeSlotPeriodicity, getParentPeriodicities, getChildPeriodicities } from './periodicity';
 import en from './locale/en';
 import fr from './locale/fr';
 import es from './locale/es';
-import { TimeSlotStrategyFactory, registerStrategies, TimeSlotStrategy } from './timeslot/strategies';
+import {
+  TimeSlotStrategyFactory,
+  registerStrategies,
+  TimeSlotStrategy,
+} from './timeslot/strategies';
 import { memoize } from './memoize';
 
 const LOCALES: Record<string, typeof en> = { en, fr, es };
@@ -40,25 +44,6 @@ export class TimeSlot {
     }
   }
 
-  private _validateValue(value: string): void {
-    try {
-      const newValue = TimeSlot.fromDate(this.firstDate, this._periodicity);
-      if (newValue.value !== value) {
-        throw new Error();
-      }
-    } catch {
-      throw new Error('Invalid time slot value');
-    }
-  }
-
-  get value(): string {
-    return this._value;
-  }
-
-  get periodicity(): TimeSlotPeriodicity {
-    return this._strategy.periodicity;
-  }
-
   @memoize
   get firstDate(): Date {
     return this._strategy.calculateFirstDate(this._value);
@@ -69,56 +54,20 @@ export class TimeSlot {
     return this._strategy.calculateLastDate(this._value, this.firstDate);
   }
 
+  get value(): string {
+    return this._value;
+  }
+
+  get periodicity(): TimeSlotPeriodicity {
+    return this._strategy.periodicity;
+  }
+
   get parentPeriodicities(): TimeSlotPeriodicity[] {
-    return this._strategy.parentPeriodicities;
+    return getParentPeriodicities(this._strategy.periodicity);
   }
 
   get childPeriodicities(): TimeSlotPeriodicity[] {
-    return this._strategy.childPeriodicities;
-  }
-
-  @memoize
-  toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot {
-    if (newPeriodicity === this.periodicity) {
-      return this;
-    } else {
-      const parentValue = this._strategy.toParentPeriodicity(this._value, newPeriodicity);
-      return TimeSlot.fromValue(parentValue);
-    }
-  }
-
-  @memoize
-  toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[] {
-    const childValues = this._strategy.toChildPeriodicity(this._value, newPeriodicity);
-    return childValues.map(value => TimeSlot.fromValue(value));
-  }
-
-  @memoize
-  previous(): TimeSlot {
-    const previousValue = this._strategy.calculatePrevious(this._value);
-    return TimeSlot.fromValue(previousValue);
-  }
-
-  @memoize
-  next(): TimeSlot {
-    const nextValue = this._strategy.calculateNext(this._value);
-    return TimeSlot.fromValue(nextValue);
-  }
-
-  private _getLocale(language: string): typeof en {
-    const locale = LOCALES[language];
-    if (!locale) {
-      throw new Error(`Unknown locale: ${language}`);
-    }
-    return locale;
-  }
-
-  humanizePeriodicity(language: string = 'en'): string {
-    return this._getLocale(language).humanizePeriodicity(this.periodicity);
-  }
-
-  humanizeValue(language: string = 'en'): string {
-    return this._getLocale(language).humanizeValue(this.periodicity, this.value);
+    return getChildPeriodicities(this._strategy.periodicity);
   }
 
   /**
@@ -155,4 +104,59 @@ export class TimeSlot {
     const value = strategy.fromDate(utcDate);
     return TimeSlot.fromValue(value);
   }
-} 
+
+  @memoize
+  toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot {
+    if (newPeriodicity === this.periodicity) {
+      return this;
+    } else {
+      const parentValue = this._strategy.toParentPeriodicity(this._value, newPeriodicity);
+      return TimeSlot.fromValue(parentValue);
+    }
+  }
+
+  @memoize
+  toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[] {
+    const childValues = this._strategy.toChildPeriodicity(this._value, newPeriodicity);
+    return childValues.map(value => TimeSlot.fromValue(value));
+  }
+
+  @memoize
+  previous(): TimeSlot {
+    const previousValue = this._strategy.calculatePrevious(this._value);
+    return TimeSlot.fromValue(previousValue);
+  }
+
+  @memoize
+  next(): TimeSlot {
+    const nextValue = this._strategy.calculateNext(this._value);
+    return TimeSlot.fromValue(nextValue);
+  }
+
+  humanizePeriodicity(language: string = 'en'): string {
+    return this._getLocale(language).humanizePeriodicity(this.periodicity);
+  }
+
+  humanizeValue(language: string = 'en'): string {
+    return this._getLocale(language).humanizeValue(this.periodicity, this.value);
+  }
+
+  private _validateValue(value: string): void {
+    try {
+      const newValue = TimeSlot.fromDate(this.firstDate, this._periodicity);
+      if (newValue.value !== value) {
+        throw new Error();
+      }
+    } catch {
+      throw new Error('Invalid time slot value');
+    }
+  }
+
+  private _getLocale(language: string): typeof en {
+    const locale = LOCALES[language];
+    if (!locale) {
+      throw new Error(`Unknown locale: ${language}`);
+    }
+    return locale;
+  }
+}
