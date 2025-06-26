@@ -34,6 +34,8 @@ const PERIODICITIES_PARENT_CHILD: Record<TimeSlotPeriodicity, TimeSlotPeriodicit
 
 export function isChildOf(child: TimeSlotPeriodicity, parent: TimeSlotPeriodicity): boolean {
   const directParents = PERIODICITIES_PARENT_CHILD[child];
+  if (!directParents) return false;
+
   if (directParents.includes(parent)) return true;
 
   // Recursively check if any direct parent is a child of the target parent

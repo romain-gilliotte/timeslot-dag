@@ -107,16 +107,16 @@ export class TimeSlot {
 
   @memoize
   toParentPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot {
-    if (newPeriodicity === this.periodicity) {
-      return this;
-    } else {
-      const parentValue = this._strategy.toParentPeriodicity(this._value, newPeriodicity);
-      return TimeSlot.fromValue(parentValue);
-    }
+    if (newPeriodicity === this.periodicity) return this;
+
+    const parentValue = this._strategy.toParentPeriodicity(this._value, newPeriodicity);
+    return TimeSlot.fromValue(parentValue);
   }
 
   @memoize
   toChildPeriodicity(newPeriodicity: TimeSlotPeriodicity): TimeSlot[] {
+    if (newPeriodicity === this.periodicity) return [this];
+
     const childValues = this._strategy.toChildPeriodicity(this._value, newPeriodicity);
     return childValues.map(value => TimeSlot.fromValue(value));
   }
