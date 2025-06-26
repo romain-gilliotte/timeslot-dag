@@ -17,12 +17,11 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run coverage
-      - uses: paambaati/codeclimate-action@v3.0.0
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+      - uses: qltysh/qlty-action/coverage@v1
         with:
-          coverageCommand: npm run coverage
-  
+          token: {{ secrets.QLTY_COVERAGE_TOKEN }}
+          files: coverage/lcov.info
+
   publish:
     name: Publish
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
