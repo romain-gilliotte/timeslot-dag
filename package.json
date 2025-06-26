@@ -2,8 +2,8 @@
   "name": "timeslot-dag",
   "version": "0.0.0-development",
   "description": "Helper library to work with periods of time in javascript",
-  "main": "dist/timeslot.js",
-  "types": "dist/timeslot.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "Romain Gilliotte",
   "license": "Unlicence",
   "engines": {
