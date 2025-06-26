@@ -1,17 +1,11 @@
 import { TimeSlotStrategy, TimeSlotStrategyFactory } from '../strategy';
-import {
-  TimeSlotPeriodicity,
-  getParentPeriodicities,
-  getChildPeriodicities,
-} from '../../periodicity';
+import { TimeSlotPeriodicity, isChildOf } from '../../periodicity';
 
 export abstract class BaseTimeSlotStrategy implements TimeSlotStrategy {
   abstract readonly periodicity: TimeSlotPeriodicity;
 
   toParentPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string {
-    // Validate that the conversion is valid
-    const parentPeriodicities = getParentPeriodicities(this.periodicity);
-    if (parentPeriodicities.indexOf(newPeriodicity) === -1) {
+    if (!isChildOf(this.periodicity, newPeriodicity)) {
       throw new Error(`Cannot convert to ${newPeriodicity}`);
     }
 
@@ -26,9 +20,7 @@ export abstract class BaseTimeSlotStrategy implements TimeSlotStrategy {
   }
 
   toChildPeriodicity(value: string, newPeriodicity: TimeSlotPeriodicity): string[] {
-    // Validate that the conversion is valid
-    const childPeriodicities = getChildPeriodicities(this.periodicity);
-    if (childPeriodicities.indexOf(newPeriodicity) === -1) {
+    if (!isChildOf(newPeriodicity, this.periodicity)) {
       throw new Error(`Cannot convert to ${newPeriodicity}`);
     }
 
