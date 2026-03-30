@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/romain-gilliotte/timeslot.js"
+    "url": "https://github.com/romain-gilliotte/timeslot-dag"
   },
   "scripts": {
     "build": "tsc",
