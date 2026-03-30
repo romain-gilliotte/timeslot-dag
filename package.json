@@ -7,7 +7,7 @@
   "author": "Romain Gilliotte",
   "license": "Unlicence",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.14.0"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,7 @@
     "@typescript-eslint/parser": "^8.35.0",
     "eslint": "^9.29.0",
     "jest": "^30.0.2",
+    "semantic-release": "^25.0.3",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   }
